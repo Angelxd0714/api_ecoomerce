@@ -1,0 +1,21 @@
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    networks:
+      app-network:
+        ipv4_address: 172.27.0.4
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+networks:
+  app-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.27.0.0/16
+
+volumes:
+  mongo_data:
