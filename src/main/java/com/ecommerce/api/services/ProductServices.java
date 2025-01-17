@@ -1,7 +1,10 @@
 package com.ecommerce.api.services;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
+import com.ecommerce.api.dto.request.ProductRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +14,7 @@ import com.ecommerce.api.persistence.entities.Product;
 import com.ecommerce.api.persistence.interfaces.CrudProduct;
 import com.ecommerce.api.persistence.repository.RepositoryProduct;
 import com.ecommerce.api.persistence.repository.UpdateRepositoryProduct;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class ProductServices implements CrudProduct {
@@ -18,9 +22,44 @@ public class ProductServices implements CrudProduct {
     private RepositoryProduct repositoryProduct;
     @Autowired
     private UpdateRepositoryProduct updateRepositoryProduct;
+
+    @Autowired
+    private S3Service s3Service;
     @Override
-    public void save(Product product) {
-        repositoryProduct.save(product);
+    public void save(ProductRequest product, MultipartFile file) throws IOException {
+
+        String url = getString(file);
+
+
+        List<Category> category =
+        product.getCategoriesRequestLis().stream().map(categoryRequest -> Category.builder()
+                .name(categoryRequest.getName())
+                .description(categoryRequest.getDescription())
+                .build()).toList();
+        Markers marker = Markers.builder()
+                .name(product.getMarker().getName())
+                .description(product.getMarker().getDescription())
+                .build();
+
+        Product product1 = Product.builder()
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .stock(product.getStock())
+                .image(url)
+                .categories(category)
+                .marker(marker)
+                .build();
+
+        repositoryProduct.save(product1);
+    }
+
+    private String getString(MultipartFile file) throws IOException {
+        File tempFile = new File(System.getProperty("java.io.tmpdir") + "/" + file.getOriginalFilename());
+
+        file.transferTo(tempFile);
+        String url = s3Service.uploadFile(file.getOriginalFilename(), tempFile);
+        return url;
     }
 
     @Override
@@ -29,8 +68,38 @@ public class ProductServices implements CrudProduct {
     }
 
     @Override
-    public void update(Product product, String id) {
-      updateRepositoryProduct.updateProductoPersonalize(id,product);
+    public void update(ProductRequest product,String id,MultipartFile file) throws IOException {
+        repositoryProduct.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
+
+
+        File tempFile = null;
+        if (file != null) {
+            tempFile = new File(System.getProperty("java.io.tmpdir") + "/" + file.getOriginalFilename());
+        }
+
+        file.transferTo(tempFile);
+        String url = s3Service.uploadFile(file.getOriginalFilename(), tempFile);
+
+        List<Category> category =
+                product.getCategoriesRequestLis().stream().map(categoryRequest -> Category.builder()
+                        .name(categoryRequest.getName())
+                        .description(categoryRequest.getDescription())
+                        .build()).toList();
+        Markers marker = Markers.builder()
+                .name(product.getMarker().getName())
+                .description(product.getMarker().getDescription())
+                .build();
+
+        Product product1 = Product.builder()
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .stock(product.getStock())
+                .image(url)
+                .categories(category)
+                .marker(marker)
+                .build();
+      updateRepositoryProduct.updateProductoPersonalize(id,product1);
     }
 
     @Override
