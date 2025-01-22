@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -23,22 +25,7 @@ public class S3Service {
 
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
-    @PostConstruct
-    public void initializeBucket() {
-        createBucket();
-    }
-    public void createBucket() {
-        try {
-       s3Client.headBucket(HeadBucketRequest.builder().bucket(bucketName).build());
-        } catch (S3Exception e) {
-            if (e.statusCode() == 404) {
-                s3Client.createBucket(b -> b.bucket(bucketName));
-            }else {
-                throw e;
-            }
 
-        }
-    }
 
     public String uploadFile(String key, File file) {
         s3Client.putObject(PutObjectRequest.builder()

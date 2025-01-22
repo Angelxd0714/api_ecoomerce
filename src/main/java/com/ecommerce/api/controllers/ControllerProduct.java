@@ -35,8 +35,7 @@ public class ControllerProduct {
     @Autowired
     private ProductServices productServices;
 
-    @PostMapping("/createProduct")
-    public ResponseEntity<Map<String, String>> createProduct(
+    @PostMapping(value = "/createProduct", consumes = "multipart/form-data")    public ResponseEntity<Map<String, String>> createProduct(
             @RequestParam("image") MultipartFile image,
             @RequestBody ProductRequest productRequest) {
         try {

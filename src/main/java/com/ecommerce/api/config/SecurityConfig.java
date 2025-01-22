@@ -10,6 +10,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,7 +32,7 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, AuthenticationProvider authenticationProvider)
             throws Exception {
         return httpSecurity
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(http -> {
                     http.requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll();
@@ -43,10 +44,10 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.DELETE, "api/category/**").hasAnyRole("ADMIN");
                     http.requestMatchers(HttpMethod.GET, "api/product/**").permitAll();
                     http.requestMatchers(HttpMethod.GET, "api/roles/**").permitAll();
-                    http.requestMatchers(HttpMethod.POST,"api/product/**").hasAnyRole("ADMIN","SELLER");
+                    http.requestMatchers(HttpMethod.POST,"api/product/**").permitAll();
                     http.requestMatchers(HttpMethod.PUT, "api/product/**").hasAnyRole("ADMIN", "SELLER");
                     http.requestMatchers(HttpMethod.DELETE, "api/product/**").hasAnyRole("ADMIN", "SELLER");
-                    http.requestMatchers(HttpMethod.GET, "api/user/**").hasAnyRole("ADMIN","CLIENT","SELLER");
+                    http.requestMatchers(HttpMethod.GET, "api/user/**").permitAll();
                     http.requestMatchers(HttpMethod.POST, "api/user/**").hasAnyRole("ADMIN", "CLIENT", "SELLER");
                     http.requestMatchers(HttpMethod.PUT, "api/user/**").hasAnyRole("ADMIN", "CLIENT", "SELLER");
                     http.requestMatchers(HttpMethod.DELETE, "api/user/**").hasAnyRole("ADMIN");

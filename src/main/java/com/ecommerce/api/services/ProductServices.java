@@ -28,7 +28,8 @@ public class ProductServices implements CrudProduct {
     @Override
     public void save(ProductRequest product, MultipartFile file) throws IOException {
 
-        String url = getString(file);
+        String url = s3Service.uploadFile(file.getOriginalFilename(), new File(System.getProperty("java.io.tmpdir") + "/" + file.getOriginalFilename()));
+
 
 
         List<Category> category =
@@ -54,13 +55,7 @@ public class ProductServices implements CrudProduct {
         repositoryProduct.save(product1);
     }
 
-    private String getString(MultipartFile file) throws IOException {
-        File tempFile = new File(System.getProperty("java.io.tmpdir") + "/" + file.getOriginalFilename());
 
-        file.transferTo(tempFile);
-        String url = s3Service.uploadFile(file.getOriginalFilename(), tempFile);
-        return url;
-    }
 
     @Override
     public Product findById(String id) {

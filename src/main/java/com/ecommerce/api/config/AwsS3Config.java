@@ -1,5 +1,6 @@
 package com.ecommerce.api.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 
 @Configuration
+@Slf4j
 public class AwsS3Config {
     @Value("${aws.credentials.access-key}")
     private String accessKey;
@@ -19,9 +21,12 @@ public class AwsS3Config {
     @Value("${aws.region}")
     private String region;
 
+
     @Bean
     public S3Client s3Client() {
-
+        log.info("accessKey: {}", accessKey);
+        log.info("secretKey: {}", secretKey);
+        log.info("region: {}", region);
         return S3Client.builder()
                 .region(Region.of(region))
                 .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey)))

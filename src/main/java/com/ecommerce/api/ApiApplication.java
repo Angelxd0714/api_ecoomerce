@@ -1,5 +1,6 @@
 package com.ecommerce.api;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,6 +14,9 @@ import com.ecommerce.api.persistence.entities.Users;
 import com.ecommerce.api.persistence.repository.RepositoryPermissions;
 import com.ecommerce.api.persistence.repository.RepositoryRoles;
 import com.ecommerce.api.persistence.repository.RepositoryUsers;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.*;
 @SpringBootApplication
 public class ApiApplication {
@@ -76,5 +80,19 @@ public class ApiApplication {
 
         };
     }
+	@PostConstruct
+	public void runScript() {
+		try {
+			Process process = Runtime.getRuntime().exec("./create_s3_bucket.sh");
+			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			String line;
+			while ((line = reader.readLine()) != null) {
+				System.out.println(line);
+			}
+			process.waitFor();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 }
