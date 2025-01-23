@@ -4,11 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ecommerce.api.persistence.entities.Orders;
-import com.ecommerce.api.persistence.entities.Users;
 import com.ecommerce.api.persistence.interfaces.CrudOrder;
 import com.ecommerce.api.persistence.repository.RepositoryOrder;
-import com.ecommerce.api.persistence.repository.UpdateRepositoryOrder;
-import com.stripe.param.SubscriptionItemUsageRecordCreateParams.Timestamp;
+
 import java.time.*;
 import java.util.*;
 @Service
@@ -16,8 +14,7 @@ public class OrdersServices implements CrudOrder {
     @Autowired
     private RepositoryOrder repositoryOrder;
 
-    @Autowired
-    private UpdateRepositoryOrder updateRepositoryOrder;
+
     @Override
     public void save(Orders order) {
         repositoryOrder.save(order);
@@ -29,8 +26,8 @@ public class OrdersServices implements CrudOrder {
     }
 
     @Override
-    public void update(Orders order, String id) {
-       updateRepositoryOrder.updateOrder(id, order);
+    public void update(Orders order, Long id) {
+       repositoryOrder.updateOrder(id, order);
     }
 
     @Override

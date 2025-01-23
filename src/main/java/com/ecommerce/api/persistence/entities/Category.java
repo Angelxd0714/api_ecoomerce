@@ -1,6 +1,6 @@
 package com.ecommerce.api.persistence.entities;
 
-import org.springframework.data.annotation.Id;
+import jakarta.persistence.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -13,12 +13,14 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "categories")
+@Entity(name = "categories")
 public class Category {
     @Id
-    private String id;
-    @Field(name = "name")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(name = "name")
     private String name;
-    @Field(name = "description")
+    @Column(name = "description")
     private String description;
+
 }

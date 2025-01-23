@@ -1,21 +1,27 @@
 services:
-  mongo:
-    image: mongo:latest
-    container_name: mongo
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: sqlserver
+    environment:
+      - SA_PASSWORD=${PASSWORD}
+      - ACCEPT_EULA=Y
     networks:
       app-network:
         ipv4_address: 172.27.0.4
     ports:
-      - "27017:27017"
+      - "1433:1433"
     volumes:
-      - mongo_data:/data/db
-
+      - sqlserver_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "SA", "-P", "${PASSWORD}", "-Q", "SELECT 1"]
+      interval: 30s
+      timeout: 20s
+      retries: 5
+volumes:
+  sqlserver_data:
 networks:
   app-network:
     driver: bridge
     ipam:
       config:
         - subnet: 172.27.0.0/16
-
-volumes:
-  mongo_data:

@@ -24,9 +24,7 @@ public class AwsS3Config {
 
     @Bean
     public S3Client s3Client() {
-        log.info("accessKey: {}", accessKey);
-        log.info("secretKey: {}", secretKey);
-        log.info("region: {}", region);
+
         return S3Client.builder()
                 .region(Region.of(region))
                 .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey)))

@@ -1,40 +1,43 @@
 package com.ecommerce.api.persistence.entities;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.aggregation.DateOperators.DateAdd;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
+import jakarta.persistence.*;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 import java.util.*;
 import java.time.*;
 
-@Data
+
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document
+@Entity(name = "orders")
 public class Orders {
     @Id
-    private String id;
-    @Field("user_id")
-    private Users userId;
-    @Field("order_date")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(targetEntity = Users.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private Users user;
+
+    @Column(name = "order_date")
+
     private LocalDateTime orderDate;
-    @Field("status")
+
+    @Column(name = "status")
     private String status;
-    @Field("product_list")
-    private Product[] productList;
-    @Field("total_amount")
-    private Double totalAmount;
+
+    @OneToMany(targetEntity = Product.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "product_id", referencedColumnName = "id")
+    private List<Product> productList;
+
+    @Column(name = "total_amount")
+    private BigDecimal totalAmount;
 }

@@ -6,14 +6,12 @@ import org.springframework.stereotype.Service;
 import com.ecommerce.api.persistence.entities.Category;
 import com.ecommerce.api.persistence.interfaces.CrudCategory;
 import com.ecommerce.api.persistence.repository.RepositoryCategory;
-import com.ecommerce.api.persistence.repository.UpdateRepositoryPersonalize;
 
 @Service
 public class CategoryServices implements CrudCategory {
     @Autowired
     private RepositoryCategory repositoryCategory;
-    @Autowired
-    private UpdateRepositoryPersonalize categoryUpdate;
+
     @Override
     public void save(Category category) {
         repositoryCategory.save(category);
@@ -36,7 +34,7 @@ public class CategoryServices implements CrudCategory {
 
     @Override
     public void update(Category category, String id) {
-      categoryUpdate.updateCategory(id, category);
+        repositoryCategory.updateCategory(id, category);
 
     }
     

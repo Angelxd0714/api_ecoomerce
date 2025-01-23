@@ -63,7 +63,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
         String username = createRoleRequest.username();
         String password = createRoleRequest.password();
         List<String> rolesRequest = createRoleRequest.roles().rolesName();
-        Set<Roles> roleEntityList =  roleRepository.findRolesByName(rolesRequest).stream().collect(Collectors.toSet());
+        Set<Roles> roleEntityList = new HashSet<>(roleRepository.findRolesByName(rolesRequest));
         if (roleEntityList.isEmpty()) {
             throw new IllegalArgumentException("The roles specified does not exist.");
         }

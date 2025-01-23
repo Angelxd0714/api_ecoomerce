@@ -8,6 +8,8 @@ import com.ecommerce.api.persistence.entities.Payments;
 import com.ecommerce.api.persistence.interfaces.CrudPayments;
 import com.ecommerce.api.persistence.repository.RepositoryPayment;
 
+import java.time.LocalDate;
+
 @Service
 public class PaymentServices implements CrudPayments {
     @Autowired
@@ -58,7 +60,7 @@ public class PaymentServices implements CrudPayments {
     }
 
     @Override
-    public Iterable<Payments> findByPaymentDate(DateAdd paymentDate) {
+    public Iterable<Payments> findByPaymentDate(LocalDate paymentDate) {
         return (Iterable<Payments>) repositoryPayment.findByPaymentDate(paymentDate);
     }
 

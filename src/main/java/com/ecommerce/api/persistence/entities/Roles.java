@@ -2,7 +2,7 @@ package com.ecommerce.api.persistence.entities;
 
 import java.util.Set;
 
-import org.springframework.data.annotation.Id;
+import jakarta.persistence.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -17,13 +17,15 @@ import java.util.HashSet;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection="roles")
+@Entity(name="roles")
 public class Roles {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
-    @Field(name = "name")
+    @Column(name = "name")
     private String name;
-    @Field(name = "permissions")
+    @Column(name = "permissions")
+    @ManyToMany(targetEntity = Permissions.class)
     private Set<Permissions> permissions = new HashSet<Permissions>();
     
 }

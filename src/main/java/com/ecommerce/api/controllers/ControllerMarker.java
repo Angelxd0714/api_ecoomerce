@@ -53,7 +53,7 @@ public class ControllerMarker {
             if(!serviceMarker.existsById(id)){
                 return ResponseEntity.badRequest().body("Marker not found: " + HttpStatus.BAD_REQUEST);
             }
-            serviceMarker.update(marker, id);
+            serviceMarker.update(marker, Long.valueOf(id));
             return ResponseEntity.ok(HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage() + HttpStatus.BAD_REQUEST);

@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDate;
 import java.util.*;
 
 import com.ecommerce.api.persistence.entities.Orders;
@@ -50,10 +52,10 @@ public class ControllerPayment {
             response.put("description", paymentIntent.getDescription());
             Payments payments = new Payments();
             payments.setPaymentAmount(orders.getAmountTotal());
-            payments.setId(paymentIntent.getId());
+            payments.setId(Long.valueOf(paymentIntent.getId()));
             payments.setPaymentCurrency(paymentIntent.getCurrency());
-            Date createdDate = new Date(orders.getCreated());
-            payments.setCreatedAt(DateAdd.addValue(createdDate, null));
+
+            payments.setCreatedAt(LocalDate.now());
             payments.setPaymentStatus(paymentIntent.getStatus());
             payments.setUserId(user);
             payments.setOrderId(order);

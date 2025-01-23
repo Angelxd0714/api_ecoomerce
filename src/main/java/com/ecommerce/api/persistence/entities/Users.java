@@ -4,7 +4,7 @@ import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.springframework.data.annotation.Id;
+import jakarta.persistence.*;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -26,41 +26,43 @@ import java.time.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "users")
+@Entity(name = "users")
 public class Users {
     @Id
-    private String id; // MongoDB utiliza String para el identificador
-    @Field(name = "username")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(name = "username")
     private String username;
-    @Field(name = "user_id")
+    @Column(name = "user_id")
     @Indexed(unique = true)
     private String userId;
-    @Field(name = "password")
+    @Column(name = "password")
     private String password;
     @Indexed(unique = true)
-    @Field(name = "email")
+    @Column(name = "email")
     private String email;
-    @Field(name = "full_name")
+    @Column(name = "full_name")
     private String fullName;
-    @Field(name = "phone")
+    @Column(name = "phone")
     private String phone;
-    @Field(name = "is_enabled")
+    @Column(name = "is_enabled")
     private boolean isEnabled;
-    @Field(name = "account_no_expired")
+    @Column(name = "account_no_expired")
     private boolean accountNoExpired;
-    @Field(name = "account_no_locked")
+    @Column(name = "account_no_locked")
     private boolean accountNoLocked;
-    @Field(name = "address")
+    @Column(name = "address")
     private String address;
-    @Field(name = "credential_no_expired")
+    @Column(name = "credential_no_expired")
     private boolean credentialNoExpired;
-    @Field(name = "created_at")
+    @Column(name = "created_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
-    @Field(name = "updated_at")
+    @Column(name = "updated_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
-    @Field(name = "roles")
+    @Column(name = "roles")
+    @ManyToMany(targetEntity = Roles.class)
     private Set<Roles> roles = new HashSet<>();
 
 }

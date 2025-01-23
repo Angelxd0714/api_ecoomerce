@@ -67,7 +67,7 @@ public class ControllerOrder {
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateOrder(@PathVariable String id,@RequestBody Orders orders){
         try {
-            serviceOrder.update(orders,id);
+            serviceOrder.update(orders, Long.valueOf(id));
             return ResponseEntity.ok(HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

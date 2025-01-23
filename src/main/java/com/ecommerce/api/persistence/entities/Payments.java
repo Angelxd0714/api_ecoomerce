@@ -1,6 +1,6 @@
 package com.ecommerce.api.persistence.entities;
 
-import org.springframework.data.annotation.Id;
+import jakarta.persistence.*;
 import org.springframework.data.mongodb.core.aggregation.DateOperators.DateAdd;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -9,29 +9,33 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Entity(name = "payments")
 public class Payments {
     @Id
-    private String id;
-    @Field("order_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(name = "order_id")
     private Orders orderId;
-    @Field("user_id")
+    @Column(name = "user_id")
     private Users userId;
-    @Field("payment_method")
+    @Column(name = "payment_method")
     private String paymentMethod;
-    @Field("payment_amount")
+    @Column(name = "payment_amount")
     private Long paymentAmount;
-    @Field("payment_status")
+    @Column(name = "payment_status")
     private String paymentStatus;
-    @Field("payment_currency")
+    @Column(name = "payment_currency")
     private String paymentCurrency;
-    @Field("payment_date")
-    private DateAdd paymentDate;
-    @Field("transaction_id")
+    @Column(name = "payment_date")
+    private LocalDate paymentDate;
+    @Column(name = "transaction_id")
     private String transactionId;
-    @Field("created_at")
-    private DateAdd createdAt;
+    @Column(name = "created_at")
+    private LocalDate createdAt;
 }

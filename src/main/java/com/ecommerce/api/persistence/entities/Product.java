@@ -1,6 +1,6 @@
 package com.ecommerce.api.persistence.entities;
 
-import org.springframework.data.annotation.Id;
+import jakarta.persistence.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -23,28 +23,34 @@ import java.sql.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "products")
+@Entity(name="product")
 public class Product {
+
     @Id
-    private String id;
-    @Field(name = "name")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(name = "name")
     private String name;
-    @Field(name = "description")
+    @Column(name = "description")
     private String description;
-    @Field(name = "price")
+    @Column(name = "price")
     private Double price;
-    @Field(name = "stock")
+    @Column(name = "stock")
     private Integer stock;
-    @Field(name = "image")
+    @Column(name = "image")
     private String image;
-    @Field(name = "categories")
+
+    @ManyToMany(targetEntity = Category.class)
     private List<Category> categories;
-    @Field(name = "marker")
+
+    @ManyToOne(targetEntity = Markers.class)
     private Markers marker;
-    @Field(name = "created_at")
+    @Column(name = "created_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
-    @Field(name = "updated_at")
+    @Column(name = "updated_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
+
+
 }

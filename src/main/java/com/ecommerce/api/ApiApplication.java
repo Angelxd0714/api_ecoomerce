@@ -25,61 +25,53 @@ public class ApiApplication {
 		SpringApplication.run(ApiApplication.class, args);
 	}
 	@Bean
-    CommandLineRunner init(RepositoryPermissions servicePermission, RepositoryRoles serviceRol, RepositoryUsers serviceUser, PasswordEncoder passwordEncoder,MongoTemplate mongoTemplate) {
-        return args -> {
-			mongoTemplate.dropCollection("users");  // Elimina la colección si existe
-			mongoTemplate.dropCollection("roles");
+	CommandLineRunner init(RepositoryPermissions servicePermission, RepositoryRoles serviceRol, RepositoryUsers serviceUser, PasswordEncoder passwordEncoder) {
+		return args -> {
+			// Create permissions
 			Permissions createPermission = Permissions.builder()
 					.name("CREATE")
 					.build();
 
-					Permissions readPermission = Permissions.builder()
+			Permissions readPermission = Permissions.builder()
 					.name("READ")
 					.build();
 
-					Permissions updatePermission = Permissions.builder()
+			Permissions updatePermission = Permissions.builder()
 					.name("UPDATE")
 					.build();
 
-					Permissions deletePermission = Permissions.builder()
+			Permissions deletePermission = Permissions.builder()
 					.name("DELETE")
 					.build();
-                     
 
+			servicePermission.saveAll(List.of(createPermission, readPermission, updatePermission, deletePermission));
 
-					servicePermission.saveAll(List.of(createPermission,readPermission,updatePermission,deletePermission));
-
-					Roles adminRole = Roles.builder()
+			// Create roles
+			Roles adminRole = Roles.builder()
 					.name("ADMIN")
 					.permissions(Set.of(createPermission, readPermission, updatePermission, deletePermission))
 					.build();
-					Roles client = Roles.builder()
+			Roles client = Roles.builder()
 					.name("CLIENT")
-					.permissions(Set.of(createPermission, readPermission,updatePermission))
+					.permissions(Set.of(createPermission, readPermission, updatePermission))
 					.build();
-					Roles seller = Roles.builder()
+			Roles seller = Roles.builder()
 					.name("SELLER")
-					.permissions(Set.of(createPermission, readPermission, updatePermission,deletePermission))
+					.permissions(Set.of(createPermission, readPermission, updatePermission, deletePermission))
 					.build();
-					serviceRol.saveAll(List.of(client,seller,adminRole));
-                    String passwordHashed = passwordEncoder.encode("admin");
-					Users adminUser = Users.builder()
+			serviceRol.saveAll(List.of(client, seller, adminRole));
+
+			// Create admin user
+			String passwordHashed = passwordEncoder.encode("admin");
+			Users adminUser = Users.builder()
 					.username("admin")
 					.password(passwordHashed)
 					.roles(Set.of(adminRole))
 					.build();
 
-
-					serviceUser.save(adminUser);
-			
-		
-			
-
-
-		
-
-        };
-    }
+			serviceUser.save(adminUser);
+		};
+	}
 	@PostConstruct
 	public void runScript() {
 		try {

@@ -13,15 +13,13 @@ import com.ecommerce.api.persistence.entities.Markers;
 import com.ecommerce.api.persistence.entities.Product;
 import com.ecommerce.api.persistence.interfaces.CrudProduct;
 import com.ecommerce.api.persistence.repository.RepositoryProduct;
-import com.ecommerce.api.persistence.repository.UpdateRepositoryProduct;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class ProductServices implements CrudProduct {
     @Autowired
     private RepositoryProduct repositoryProduct;
-    @Autowired
-    private UpdateRepositoryProduct updateRepositoryProduct;
+
 
     @Autowired
     private S3Service s3Service;
@@ -94,7 +92,7 @@ public class ProductServices implements CrudProduct {
                 .categories(category)
                 .marker(marker)
                 .build();
-      updateRepositoryProduct.updateProductoPersonalize(id,product1);
+      repositoryProduct.updateProductoPersonalize(Long.valueOf(id),product1);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.ecommerce.api.persistence.entities;
 
-import org.springframework.data.annotation.Id;
+import jakarta.persistence.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -14,10 +14,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection="permissions")
+@Entity(name="permissions")
 public class Permissions {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
-    @Field(name = "name")
+    @Column(name = "name")
     private String name;
 }
