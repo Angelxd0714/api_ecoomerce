@@ -12,19 +12,13 @@ import java.util.UUID;
 
 import com.ecommerce.api.dto.request.ProductRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.mongodb.core.aggregation.VariableOperators;
-import org.springframework.format.annotation.DateTimeFormat;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import java.time.*;
-import com.ecommerce.api.persistence.entities.Category;
-import com.ecommerce.api.persistence.entities.Markers;
-import com.ecommerce.api.persistence.entities.Product;
+
 import com.ecommerce.api.services.ProductServices;
 
 @CrossOrigin("*")

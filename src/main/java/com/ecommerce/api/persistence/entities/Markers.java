@@ -2,8 +2,7 @@ package com.ecommerce.api.persistence.entities;
 
 import jakarta.persistence.*;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
+
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.*;

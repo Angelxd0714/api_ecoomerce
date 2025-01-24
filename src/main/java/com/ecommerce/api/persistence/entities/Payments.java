@@ -1,8 +1,6 @@
 package com.ecommerce.api.persistence.entities;
 
 import jakarta.persistence.*;
-import org.springframework.data.mongodb.core.aggregation.DateOperators.DateAdd;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,7 +19,7 @@ public class Payments {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "order_id")
-    private Orders orderId;
+    private Order orderId;
     @Column(name = "user_id")
     private Users userId;
     @Column(name = "payment_method")

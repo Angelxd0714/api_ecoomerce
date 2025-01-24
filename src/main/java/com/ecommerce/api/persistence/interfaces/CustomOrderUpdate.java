@@ -1,7 +1,7 @@
 package com.ecommerce.api.persistence.interfaces;
 
-import com.ecommerce.api.persistence.entities.Orders;
+import com.ecommerce.api.persistence.entities.Order;
 
 public interface CustomOrderUpdate {
-    void updateOrder(String id,Orders orders);
+    void updateOrder(String id, Order orders);
 }

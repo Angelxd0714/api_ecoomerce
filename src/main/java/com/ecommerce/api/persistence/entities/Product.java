@@ -1,14 +1,8 @@
 package com.ecommerce.api.persistence.entities;
 
 import jakarta.persistence.*;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
 import java.util.*;
 import lombok.AllArgsConstructor;
@@ -17,13 +11,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.*;
 
-import java.sql.*;
 
-@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name="product")
+@Entity
+@Table(name = "product")
 public class Product {
 
     @Id
@@ -52,5 +45,7 @@ public class Product {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id") // Define la clave foránea en la tabla 'product'
+    private Order order;
 }

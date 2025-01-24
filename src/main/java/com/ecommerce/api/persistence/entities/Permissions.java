@@ -1,8 +1,6 @@
 package com.ecommerce.api.persistence.entities;
 
 import jakarta.persistence.*;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 import jakarta.annotation.Generated;
 import lombok.AllArgsConstructor;

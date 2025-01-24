@@ -1,7 +1,6 @@
 package com.ecommerce.api.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.aggregation.DateOperators.DateAdd;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,14 +17,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 import java.util.*;
 
-import com.ecommerce.api.persistence.entities.Orders;
+import com.ecommerce.api.persistence.entities.Order;
 import com.ecommerce.api.persistence.entities.Payments;
 import com.ecommerce.api.persistence.entities.Users;
 import com.ecommerce.api.services.PaymentServices;
 import com.ecommerce.api.services.ServiceStripe;
 import com.stripe.model.PaymentIntent;
-import com.stripe.model.climate.Order;
-import java.util.Date;
+
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api/payment")
@@ -36,8 +34,8 @@ public class ControllerPayment {
     private ServiceStripe serviceStripe;
 
     @PostMapping("/create-payment-intent")
-    public ResponseEntity<?> createPayment(@RequestBody Order orders, @RequestParam("userId") Users user,
-            @RequestParam("orderId") Orders order) {
+    public ResponseEntity<?> createPayment(@RequestBody com.stripe.model.climate.Order orders, @RequestParam("userId") Users user,
+                                           @RequestParam("orderId") Order order) {
         if (orders.getStatus() == "CANCELED") {
             return ResponseEntity.badRequest().body("PAGO FUE CANCELADO");
         }

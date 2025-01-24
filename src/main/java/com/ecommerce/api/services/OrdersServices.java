@@ -3,7 +3,7 @@ package com.ecommerce.api.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.ecommerce.api.persistence.entities.Orders;
+import com.ecommerce.api.persistence.entities.Order;
 import com.ecommerce.api.persistence.interfaces.CrudOrder;
 import com.ecommerce.api.persistence.repository.RepositoryOrder;
 
@@ -16,17 +16,17 @@ public class OrdersServices implements CrudOrder {
 
 
     @Override
-    public void save(Orders order) {
+    public void save(Order order) {
         repositoryOrder.save(order);
     }
 
     @Override
-    public Orders findById(String id) {
+    public Order findById(String id) {
        return repositoryOrder.findById(id).orElse(null);
     }
 
     @Override
-    public void update(Orders order, Long id) {
+    public void update(Order order, Long id) {
        repositoryOrder.updateOrder(id, order);
     }
 
@@ -36,23 +36,23 @@ public class OrdersServices implements CrudOrder {
     }
 
     @Override
-    public Iterable<Orders> findAll() {
+    public Iterable<Order> findAll() {
        return repositoryOrder.findAll();
     }
 
     @Override
-    public Iterable<Orders> findByUserId(List<String> userId) {
-       return (Iterable<Orders>) repositoryOrder.findByUserId(userId);
+    public Iterable<Order> findByUserId(List<String> userId) {
+       return (Iterable<Order>) repositoryOrder.findByUserId(userId);
     }
 
     @Override
-    public Iterable<Orders> findByStatus(List<String> status) {
-       return (Iterable<Orders>) repositoryOrder.findByStatus(status);
+    public Iterable<Order> findByStatus(List<String> status) {
+       return (Iterable<Order>) repositoryOrder.findByStatus(status);
     }
 
     @Override
-    public Iterable<Orders> findByOrderDate(List<LocalDateTime> orderDate) {
-        return (Iterable<Orders>) repositoryOrder.findByOrderDate(orderDate);
+    public Iterable<Order> findByOrderDate(List<LocalDateTime> orderDate) {
+        return (Iterable<Order>) repositoryOrder.findByOrderDate(orderDate);
     }
     
 }
