@@ -27,7 +27,7 @@ public class OrdersServices implements CrudOrder {
 
     @Override
     public void update(Order order, Long id) {
-       repositoryOrder.updateOrder(id, order);
+       repositoryOrder.updateOrder(id,order.getStatus());
     }
 
     @Override
@@ -42,17 +42,17 @@ public class OrdersServices implements CrudOrder {
 
     @Override
     public Iterable<Order> findByUserId(List<String> userId) {
-       return (Iterable<Order>) repositoryOrder.findByUserId(userId);
+       return repositoryOrder.findByUserId(userId);
     }
 
     @Override
     public Iterable<Order> findByStatus(List<String> status) {
-       return (Iterable<Order>) repositoryOrder.findByStatus(status);
+       return repositoryOrder.findByStatus(status);
     }
 
     @Override
     public Iterable<Order> findByOrderDate(List<LocalDateTime> orderDate) {
-        return (Iterable<Order>) repositoryOrder.findByOrderDate(orderDate);
+        return repositoryOrder.findByOrderDate(orderDate.stream().reduce((a,b)->a).orElse(null));
     }
     
 }

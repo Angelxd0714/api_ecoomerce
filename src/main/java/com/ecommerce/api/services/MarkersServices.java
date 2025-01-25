@@ -24,7 +24,11 @@ public class MarkersServices implements CrudMarkers {
 
     @Override
     public void update(Markers markers, Long id) {
-      repositoryMarkers.updateMarker(markers,id);
+        repositoryMarkers.findById(String.valueOf(id)).ifPresentOrElse(x->{
+            repositoryMarkers.updateMarker(markers,id);
+        },null);
+
+
     }
 
     @Override

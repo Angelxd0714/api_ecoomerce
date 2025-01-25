@@ -1,5 +1,6 @@
 package com.ecommerce.api.services;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,9 +34,21 @@ public class CategoryServices implements CrudCategory {
     }
 
     @Override
+    @Transactional
     public void update(Category category, String id) {
-        repositoryCategory.updateCategory(id, category);
+        Category existingCategory = repositoryCategory.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
 
+        try {
+            if (category.getName() != null && !category.getName().trim().isEmpty()) {
+                repositoryCategory.updateCategory(id, category.getName());
+            } else {
+                throw new IllegalArgumentException("Category name cannot be empty");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error updating category: " + e.getMessage());
+        }
     }
-    
+
+
 }

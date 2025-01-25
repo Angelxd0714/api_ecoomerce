@@ -16,7 +16,7 @@ import java.time.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "product")
+@Table(name = "products")
 public class Product {
 
     @Id
@@ -33,7 +33,12 @@ public class Product {
     @Column(name = "image")
     private String image;
 
-    @ManyToMany(targetEntity = Category.class)
+    @ManyToMany
+    @JoinTable(
+            name = "product_category", // Nombre de la tabla intermedia
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
     private List<Category> categories;
 
     @ManyToOne(targetEntity = Markers.class)
@@ -46,6 +51,6 @@ public class Product {
     private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id") // Define la clave foránea en la tabla 'product'
+    @JoinColumn(name = "order_id") // Especifica la columna de la clave foránea
     private Order order;
 }
