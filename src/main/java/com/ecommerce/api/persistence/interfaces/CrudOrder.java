@@ -1,15 +1,15 @@
 package com.ecommerce.api.persistence.interfaces;
 
-import com.ecommerce.api.persistence.entities.Order;
+import com.ecommerce.api.persistence.entities.Orders;
 import java.time.*;
 import java.util.*;
 public interface CrudOrder {
-    void save(Order order);
-    Order findById(String id);
-    void update(Order order, Long id);
+    void save(Orders order);
+    Orders findById(String id);
+    void update(Orders orders, Long id);
     void delete(String id);
-    Iterable<Order> findAll();
-    Iterable<Order> findByUserId(List<String> userId);
-    Iterable<Order> findByStatus(List<String> status);
-    Iterable<Order> findByOrderDate(List<LocalDateTime> orderDate);
+    Iterable<Orders> findAll();
+    Iterable<Orders> findByUserId(List<String> userId);
+    Iterable<Orders> findByStatus(List<String> status);
+    Iterable<Orders> findByOrderDate(List<LocalDateTime> orderDate);
 }

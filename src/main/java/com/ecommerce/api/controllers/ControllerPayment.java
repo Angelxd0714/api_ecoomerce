@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 import java.util.*;
 
-import com.ecommerce.api.persistence.entities.Order;
+import com.ecommerce.api.persistence.entities.Orders;
 import com.ecommerce.api.persistence.entities.Payments;
 import com.ecommerce.api.persistence.entities.Users;
 import com.ecommerce.api.services.PaymentServices;
@@ -35,7 +35,7 @@ public class ControllerPayment {
 
     @PostMapping("/create-payment-intent")
     public ResponseEntity<?> createPayment(@RequestBody com.stripe.model.climate.Order orders, @RequestParam("userId") Users user,
-                                           @RequestParam("orderId") Order order) {
+                                           @RequestParam("orders") Orders order) {
         if (orders.getStatus() == "CANCELED") {
             return ResponseEntity.badRequest().body("PAGO FUE CANCELADO");
         }

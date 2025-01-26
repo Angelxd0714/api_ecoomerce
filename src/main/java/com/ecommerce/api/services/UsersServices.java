@@ -18,7 +18,7 @@ public class UsersServices implements CrudUsers {
     }
 
     @Override
-    public Users getUserById(String id) {
+    public Users getUserById(Long id) {
         return repositoryUsers.findById(id).orElse(null);
     }
 
@@ -33,7 +33,7 @@ public class UsersServices implements CrudUsers {
     }
 
     @Override
-    public void updateUser(Users user, String id) {
+    public void updateUser(Users user, Long id) {
         repositoryUsers.findById(id).ifPresentOrElse(x -> {
             x.setFullName(user.getFullName());
             x.setEmail(user.getEmail());
@@ -49,7 +49,7 @@ public class UsersServices implements CrudUsers {
     }
 
     @Override
-    public void deleteUser(String id) {
+    public void deleteUser(Long id) {
         repositoryUsers.deleteById(id);
     }
 

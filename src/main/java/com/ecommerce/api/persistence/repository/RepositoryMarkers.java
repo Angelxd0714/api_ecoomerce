@@ -17,9 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public interface RepositoryMarkers extends CrudRepository<Markers,String> {
     Optional<Markers> findByName(String name);
     @Modifying
-    @Transactional
+    @Query("UPDATE markers m SET m.name = :#{#markers.name}, m.description = :#{#markers.description} WHERE m.id = :id")
+    void updateMarker(@Param("markers") Markers markers, @Param("id") Long id);
 
-    @Query("UPDATE markers m SET m.name = markers.name, m.description = markers.description WHERE m.id = :id")
-    void updateMarker(@Param("markers") Markers markers,
-                      @Param("id") Long id);
 }

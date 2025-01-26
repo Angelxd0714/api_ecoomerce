@@ -3,19 +3,19 @@ package com.ecommerce.api.persistence.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+import java.util.Set;
+
+@Entity(name = "orders")
 @Getter
 @Setter
-@Entity
-@Table(name = "orders")
-public class Order {
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Orders  {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,13 +26,18 @@ public class Order {
     private Users user;
 
     @Column(name = "order_date")
-    private LocalDateTime orderDate;
+    private LocalDate orderDate;
 
     @Column(name = "status")
     private String status;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-    private List<Product> products = new ArrayList<>();
+    @ManyToMany
+    @JoinTable(
+            name = "order_products",
+            joinColumns = @JoinColumn(name = "order_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id")
+    )
+    private Set<Product> products; // Ensure proper mapping for collections
 
     @Column(name = "total_amount")
     private BigDecimal totalAmount;

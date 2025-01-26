@@ -3,7 +3,7 @@ package com.ecommerce.api.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.ecommerce.api.persistence.entities.Order;
+import com.ecommerce.api.persistence.entities.Orders;
 import com.ecommerce.api.persistence.interfaces.CrudOrder;
 import com.ecommerce.api.persistence.repository.RepositoryOrder;
 
@@ -16,18 +16,18 @@ public class OrdersServices implements CrudOrder {
 
 
     @Override
-    public void save(Order order) {
+    public void save(Orders order) {
         repositoryOrder.save(order);
     }
 
     @Override
-    public Order findById(String id) {
+    public Orders findById(String id) {
        return repositoryOrder.findById(id).orElse(null);
     }
 
     @Override
-    public void update(Order order, Long id) {
-       repositoryOrder.updateOrder(id,order.getStatus());
+    public void update(Orders orders, Long id) {
+       repositoryOrder.updateOrder(id, orders.getStatus());
     }
 
     @Override
@@ -36,22 +36,22 @@ public class OrdersServices implements CrudOrder {
     }
 
     @Override
-    public Iterable<Order> findAll() {
+    public Iterable<Orders> findAll() {
        return repositoryOrder.findAll();
     }
 
     @Override
-    public Iterable<Order> findByUserId(List<String> userId) {
+    public Iterable<Orders> findByUserId(List<String> userId) {
        return repositoryOrder.findByUserId(userId);
     }
 
     @Override
-    public Iterable<Order> findByStatus(List<String> status) {
+    public Iterable<Orders> findByStatus(List<String> status) {
        return repositoryOrder.findByStatus(status);
     }
 
     @Override
-    public Iterable<Order> findByOrderDate(List<LocalDateTime> orderDate) {
+    public Iterable<Orders> findByOrderDate(List<LocalDateTime> orderDate) {
         return repositoryOrder.findByOrderDate(orderDate.stream().reduce((a,b)->a).orElse(null));
     }
     

@@ -9,26 +9,26 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.*;
 
-import com.ecommerce.api.persistence.entities.Order;
+import com.ecommerce.api.persistence.entities.Orders;
 
 
 import java.time.*;
 
 @Repository
-public interface RepositoryOrder extends CrudRepository<Order,String> {
+public interface RepositoryOrder extends CrudRepository<Orders,String> {
 
-        @Query("SELECT o FROM order o WHERE o.orderDate = :orderDate")
-        List<Order> findByOrderDate(@Param("orderDate") LocalDateTime orderDate);
+        @Query("SELECT o FROM orders o WHERE o.orderDate = :orderDate")
+        List<Orders> findByOrderDate(@Param("orderDate") LocalDateTime orderDate);
 
-        @Query("SELECT o FROM order o WHERE o.status IN :statuses")
-        List<Order> findByStatus(@Param("statuses") List<String> orderStatus);
+        @Query("SELECT o FROM orders o WHERE o.status IN :statuses")
+        List<Orders> findByStatus(@Param("statuses") List<String> orderStatus);
 
-        @Query("SELECT o FROM order o WHERE o.user IN :userIds")
-        List<Order> findByUserId(@Param("userIds") List<String> userId);
+        @Query("SELECT o FROM orders o WHERE o.user IN :userIds")
+        List<Orders> findByUserId(@Param("userIds") List<String> userId);
 
         @Modifying
         @Transactional
-        @Query("UPDATE order o SET o.status = :status WHERE o.id = :id")
+        @Query("UPDATE orders o SET o.status = :status WHERE o.id = :id")
         void updateOrder(@Param("id") Long id, @Param("status") String status);
 
 

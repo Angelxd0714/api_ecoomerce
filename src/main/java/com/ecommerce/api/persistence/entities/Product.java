@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import java.util.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.*;
 
@@ -49,8 +48,7 @@ public class Product {
     @Column(name = "updated_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id") // Especifica la columna de la clave foránea
-    private Order order;
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private Orders order;
 }

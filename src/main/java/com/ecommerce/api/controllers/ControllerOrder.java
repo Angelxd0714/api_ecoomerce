@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.*;
-import com.ecommerce.api.persistence.entities.Order;
+import com.ecommerce.api.persistence.entities.Orders;
 
 import com.ecommerce.api.services.OrdersServices;
 import java.time.*;
@@ -65,7 +65,7 @@ public class ControllerOrder {
         }
     }
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateOrder(@PathVariable String id,@RequestBody Order orders){
+    public ResponseEntity<?> updateOrder(@PathVariable String id,@RequestBody Orders orders){
         try {
             serviceOrder.update(orders, Long.valueOf(id));
             return ResponseEntity.ok(HttpStatus.OK);
@@ -83,7 +83,7 @@ public class ControllerOrder {
         }
     }
     @PostMapping("/create")
-    public ResponseEntity<?> createOrder(@RequestBody Order orders){
+    public ResponseEntity<?> createOrder(@RequestBody Orders orders){
         try {
             serviceOrder.save(orders);
             return ResponseEntity.ok(HttpStatus.CREATED);

@@ -18,9 +18,12 @@ public class Payments {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "order_id")
-    private Order orderId;
-    @Column(name = "user_id")
+
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private Orders orderId;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     private Users userId;
     @Column(name = "payment_method")
     private String paymentMethod;
