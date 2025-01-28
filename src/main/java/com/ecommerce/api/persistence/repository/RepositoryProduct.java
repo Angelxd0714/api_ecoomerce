@@ -17,17 +17,17 @@ import com.ecommerce.api.persistence.entities.Product;
 @Repository
 public interface RepositoryProduct extends CrudRepository<Product,String> {
     List<Product> findAll();
-    @Query("select p from product p where p.name in ?1")
-    Iterable<Product> findByName(List<String> names);
-    @Query("SELECT p FROM product p WHERE p.categories IN ?1")
-    Iterable<Product> findByCategories(List<String> category);
-    @Query("select p from product p where p.marker in ?1")
-    Iterable<Product> findByMarker(List<String> marker);
-    @Query("select p from product p where p.price in ?1")
-    Iterable<Product> findByPrice(List<Double> price);
+    @Query("select p from products p where p.name in ?1")
+    List<Product> findByName(List<String> names);
+    @Query("SELECT p FROM products p JOIN p.categories c WHERE c IN :categories")
+    List<Product> findByCategories(@Param("categories") List<Category> categories);
+    @Query("select p from products p where p.marker in ?1")
+    List<Product> findByMarker(List<String> marker);
+    @Query("select p from products p where p.price in ?1")
+    List<Product> findByPrice(List<Double> price);
     @Modifying
     @Transactional
-    @Query("UPDATE product p SET " +
+    @Query("UPDATE products p SET " +
             "p.name = :#{#product.name}, " +
             "p.description = :#{#product.description}, " +
             "p.price = :#{#product.price}, " +

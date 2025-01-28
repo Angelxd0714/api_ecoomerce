@@ -112,7 +112,10 @@ public class ProductServices implements CrudProduct {
 
     @Override
     public Iterable<Product> findByCategory(List<String> category) {
-        return repositoryProduct.findByCategories(category);
+        List<Category> categoryList = category.stream().map(category1 -> Category.builder()
+                .name(category1)
+                .build()).toList();
+        return repositoryProduct.findByCategories(categoryList);
     }
 
     @Override

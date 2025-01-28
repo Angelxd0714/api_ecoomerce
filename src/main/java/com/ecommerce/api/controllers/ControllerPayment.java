@@ -1,5 +1,6 @@
 package com.ecommerce.api.controllers;
 
+import com.stripe.model.climate.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.Collections;
 
 import com.ecommerce.api.persistence.entities.Orders;
 import com.ecommerce.api.persistence.entities.Payments;
@@ -34,10 +36,10 @@ public class ControllerPayment {
     private ServiceStripe serviceStripe;
 
     @PostMapping("/create-payment-intent")
-    public ResponseEntity<?> createPayment(@RequestBody com.stripe.model.climate.Order orders, @RequestParam("userId") Users user,
-                                           @RequestParam("orders") Orders order) {
-        if (orders.getStatus() == "CANCELED") {
-            return ResponseEntity.badRequest().body("PAGO FUE CANCELADO");
+    public ResponseEntity<Map<String, String>> createPayment(@RequestBody Order orders, @RequestParam("userId") Users user,
+                                                             @RequestParam("orders") Orders order) {
+        if (Objects.equals(orders.getStatus(), "CANCELED")) {
+            return  ResponseEntity.badRequest().body(Collections.singletonMap("error", "Payment canceled"));
         }
         try {
             PaymentIntent paymentIntent = serviceStripe.createPaymentIntent(orders);
@@ -60,28 +62,28 @@ public class ControllerPayment {
             paymentServices.createPayment(payments);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
         }
 
     }
     @GetMapping("/get-payment")
-    public ResponseEntity<?> getPayments() {
+    public ResponseEntity<Map<String,String>> getPayments() {
         try {
-            return ResponseEntity.ok(paymentServices.findAll());
+            return ResponseEntity.ok(Collections.singletonMap("payments", String.valueOf(paymentServices.findAll())));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
         }
     }
     @GetMapping("/get-payment-by-user/{userId}")
-    public ResponseEntity<?> getPaymentsByUser(@PathVariable String userid) {
+    public ResponseEntity<?> getPaymentsByUser(@PathVariable Long userId) {
         try {
-            return ResponseEntity.ok(paymentServices.findByUserId(userid));
+            return ResponseEntity.ok(paymentServices.findByUserId(userId));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
     @GetMapping("/get-payment-by-order/{orderId}")
-    public ResponseEntity<?> getPaymentsByOrder(@PathVariable String orderId) {
+    public ResponseEntity<?> getPaymentsByOrder(@PathVariable Long orderId) {
         try {
             return ResponseEntity.ok(paymentServices.findByOrderId(orderId));
         } catch (Exception e) {

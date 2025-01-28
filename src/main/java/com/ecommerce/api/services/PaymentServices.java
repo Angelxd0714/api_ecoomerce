@@ -1,5 +1,8 @@
 package com.ecommerce.api.services;
 
+import com.ecommerce.api.dto.request.OrdersRequest;
+import com.ecommerce.api.persistence.entities.Orders;
+import com.ecommerce.api.persistence.entities.Users;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
@@ -9,6 +12,8 @@ import com.ecommerce.api.persistence.interfaces.CrudPayments;
 import com.ecommerce.api.persistence.repository.RepositoryPayment;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 public class PaymentServices implements CrudPayments {
@@ -21,8 +26,8 @@ public class PaymentServices implements CrudPayments {
     }
 
     @Override
-    public Iterable<Payments> findAll() {
-        return repositoryPayment.findAll();
+    public List<Payments> findAll() {
+        return (List<Payments>) repositoryPayment.findAll();
     }
 
     @Override
@@ -45,28 +50,36 @@ public class PaymentServices implements CrudPayments {
     }
 
     @Override
-    public Iterable<Payments> findByUserId(String userId) {
-        return repositoryPayment.findByUserId(userId);
+    public List<Payments> findByUserId(Long userId) {
+               Users user = Users.builder()
+                .id(userId)
+                .build();
+
+
+        return (List<Payments>) repositoryPayment.findByUserId(user);
     }
 
     @Override
-    public Iterable<Payments> findByPaymentMethod(String paymentMethod) {
-        return (Iterable<Payments>) repositoryPayment.findByPaymentMethod(paymentMethod);
+    public List<Payments> findByPaymentMethod(String paymentMethod) {
+        return (List<Payments>) repositoryPayment.findByPaymentMethod(paymentMethod);
     }
 
     @Override
-    public Iterable<Payments> findByPaymentStatus(String paymentStatus) {
-        return (Iterable<Payments>) repositoryPayment.findByPaymentStatus(paymentStatus);
+    public List<Payments> findByPaymentStatus(String paymentStatus) {
+        return (List<Payments>) repositoryPayment.findByPaymentStatus(paymentStatus);
     }
 
     @Override
-    public Iterable<Payments> findByPaymentDate(LocalDate paymentDate) {
-        return (Iterable<Payments>) repositoryPayment.findByPaymentDate(paymentDate);
+    public List<Payments> findByPaymentDate(LocalDate paymentDate) {
+        return (List<Payments>) repositoryPayment.findByPaymentDate(paymentDate);
     }
 
     @Override
-    public Iterable<Payments> findByOrderId(String orderId) {
-        return (Iterable<Payments>) repositoryPayment.findByOrderId(orderId);
+    public List<Payments> findByOrderId(Long orderId) {
+        Orders orders = Orders.builder()
+                .id(orderId)
+                .build();
+        return (List<Payments>) repositoryPayment.findByOrderId(orders);
     }
 
     @Override

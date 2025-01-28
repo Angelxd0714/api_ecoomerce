@@ -14,8 +14,7 @@ import java.time.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "products")
+@Entity(name = "products")
 public class Product {
 
     @Id

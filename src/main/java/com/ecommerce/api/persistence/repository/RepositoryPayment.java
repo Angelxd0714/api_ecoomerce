@@ -1,5 +1,7 @@
 package com.ecommerce.api.persistence.repository;
 
+import com.ecommerce.api.persistence.entities.Orders;
+import com.ecommerce.api.persistence.entities.Users;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,8 +14,8 @@ public interface RepositoryPayment extends CrudRepository<Payments,String> {
     Payments findByPaymentMethod(String paymentMethod);
     Payments findByPaymentStatus(String status);
     Payments findByTransactionId(String transactionId);
-    Payments findByOrderId(String orderId);
+    Payments findByOrderId(Orders orderId);
     Payments findByPaymentDate(LocalDate paymenDateAdd);
-    Iterable<Payments> findByUserId(String userId);
+    Iterable<Payments> findByUserId(Users userId);
 
 }

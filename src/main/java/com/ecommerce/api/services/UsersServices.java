@@ -29,7 +29,10 @@ public class UsersServices implements CrudUsers {
 
     @Override
     public Users getUserIdent(Long userId) {
-        return repositoryUsers.findByUserId(userId).orElse(null);
+        Users user = Users.builder()
+                .userId(userId)
+                .build();
+        return repositoryUsers.findByUserId(user).orElse(null);
     }
 
     @Override

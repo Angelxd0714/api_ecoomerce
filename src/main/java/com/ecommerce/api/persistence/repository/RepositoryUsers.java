@@ -11,7 +11,7 @@ import com.ecommerce.api.persistence.entities.Users;
 public interface RepositoryUsers extends CrudRepository<Users,Long> {
     Optional<Users> findByUsername(String username);
     Optional<Users> findByEmail(String email);
-    Optional<Users> findByUserId(Long userId);
+    Optional<Users> findByUserId(Users userId);
     Optional<Users> findById(Long id);
     void deleteById(Long id);
 }

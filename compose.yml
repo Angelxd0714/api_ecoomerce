@@ -1,29 +1,31 @@
 services:
   mysql:
-    image: mysql:8.0
     container_name: mysql_ecommerce
-    restart: unless-stopped
+    image: mysql:latest
     environment:
-      MYSQL_ROOT_PASSWORD: ${PASSWORD}
-      MYSQL_DATABASE: ecommerce
+      MYSQL_ROOT_PASSWORD: ${USER}
+      MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${USER}
       MYSQL_PASSWORD: ${PASSWORD}
-      TZ: America/Bogota
-    networks:
-      app-network:
-        ipv4_address: 172.27.0.4
     ports:
       - "3307:3306"
-
-
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - mysql_data:/var/lib/mysql
 
 volumes:
   mysql_data:
     driver: local
-
 networks:
   app-network:
     driver: bridge
     ipam:
+      driver: default
       config:
         - subnet: 172.27.0.0/16
