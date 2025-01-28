@@ -67,24 +67,25 @@ public class ApiApplication {
 					.username("admin")
 					.password(passwordHashed)
 					.roles(Set.of(adminRole))
+					.isEnabled(true)
 					.build();
 
 			serviceUser.save(adminUser);
 		};
 	}
-	@PostConstruct
-	public void runScript() {
-		try {
-			Process process = Runtime.getRuntime().exec("./create_s3_bucket.sh");
-			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			String line;
-			while ((line = reader.readLine()) != null) {
-				System.out.println(line);
-			}
-			process.waitFor();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+//	@PostConstruct
+//	public void runScript() {
+//		try {
+//			Process process = Runtime.getRuntime().exec("./create_s3_bucket.sh");
+//			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+//			String line;
+//			while ((line = reader.readLine()) != null) {
+//				System.out.println(line);
+//			}
+//			process.waitFor();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
 
 }

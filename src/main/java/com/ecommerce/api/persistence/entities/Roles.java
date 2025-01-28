@@ -20,7 +20,7 @@ import java.util.HashSet;
 public class Roles {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    private Long id;
     @Column(name = "name")
     private String name;
     @Column(name = "permissions")
