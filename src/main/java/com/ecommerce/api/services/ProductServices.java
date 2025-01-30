@@ -2,9 +2,14 @@ package com.ecommerce.api.services;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import com.ecommerce.api.dto.request.ProductRequest;
+import com.ecommerce.api.utils.Utils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +21,7 @@ import com.ecommerce.api.persistence.repository.RepositoryProduct;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
+@Slf4j
 public class ProductServices implements CrudProduct {
     @Autowired
     private RepositoryProduct repositoryProduct;
@@ -25,32 +31,47 @@ public class ProductServices implements CrudProduct {
     private S3Service s3Service;
     @Override
     public void save(ProductRequest product, MultipartFile file) throws IOException {
+        try {
+            Utils utils = new Utils();
+            // 1. Use a system-provided temporary file (best practice for temporary files)
+            Path tempFile = Files.createTempFile("product-image", "." + utils.getFileExtension(file.getOriginalFilename())); // Unique prefix
 
-        String url = s3Service.uploadFile(file.getOriginalFilename(), new File(System.getProperty("java.io.tmpdir") + "/" + file.getOriginalFilename()));
+            // 2. Transfer the MultipartFile content to the temporary file
+            Files.copy(file.getInputStream(), tempFile, StandardCopyOption.REPLACE_EXISTING);
+
+            // 3. Upload to S3 using the temporary file
+            String url = "s3Service.uploadFile(file.getOriginalFilename(), tempFile.toFile());  // Pass the File object";
+
+            // 4. (Important!) Delete the temporary file after upload
+            Files.delete(tempFile); // Ensure cleanup
 
 
+            List<Category> category =
+                    product.getCategoriesRequestLis().stream().map(categoryRequest -> Category.builder()
+                            .name(categoryRequest.getName())
+                            .description(categoryRequest.getDescription())
+                            .build()).toList();
+            Markers marker = Markers.builder()
+                    .name(product.getMarker().getName())
+                    .description(product.getMarker().getDescription())
+                    .build();
 
-        List<Category> category =
-        product.getCategoriesRequestLis().stream().map(categoryRequest -> Category.builder()
-                .name(categoryRequest.getName())
-                .description(categoryRequest.getDescription())
-                .build()).toList();
-        Markers marker = Markers.builder()
-                .name(product.getMarker().getName())
-                .description(product.getMarker().getDescription())
-                .build();
+            Product product1 = Product.builder()
+                    .name(product.getName())
+                    .description(product.getDescription())
+                    .price(product.getPrice())
+                    .stock(product.getStock())
+                    .image(url)
+                    .categories(category)
+                    .marker(marker)
+                    .build();
 
-        Product product1 = Product.builder()
-                .name(product.getName())
-                .description(product.getDescription())
-                .price(product.getPrice())
-                .stock(product.getStock())
-                .image(url)
-                .categories(category)
-                .marker(marker)
-                .build();
+            repositoryProduct.save(product1);
+        } catch (Exception e) {
+            log.error("Error al guardar el producto", e);
+            throw new RuntimeException(e);
 
-        repositoryProduct.save(product1);
+        }
     }
 
 
@@ -71,7 +92,7 @@ public class ProductServices implements CrudProduct {
         }
 
         file.transferTo(tempFile);
-        String url = s3Service.uploadFile(file.getOriginalFilename(), tempFile);
+        String url = "s3Service.uploadFile(file.getOriginalFilename(), tempFile);";
 
         List<Category> category =
                 product.getCategoriesRequestLis().stream().map(categoryRequest -> Category.builder()

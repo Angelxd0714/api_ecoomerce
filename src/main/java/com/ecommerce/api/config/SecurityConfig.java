@@ -33,13 +33,14 @@ public class SecurityConfig {
             throws Exception {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(http -> {
                     http.requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll();
                     http.requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll();
                     http.requestMatchers(HttpMethod.GET, "upload/images/**").permitAll();
                     http.requestMatchers(HttpMethod.GET,"api/category/**").permitAll();
-                    http.requestMatchers(HttpMethod.POST, "api/category/**").hasAnyRole("ADMIN");
+                    http.requestMatchers(HttpMethod.POST, "api/category/**").permitAll();
                     http.requestMatchers(HttpMethod.PUT, "api/category/**").hasAnyRole("ADMIN");
                     http.requestMatchers(HttpMethod.DELETE, "api/category/**").hasAnyRole("ADMIN");
                     http.requestMatchers(HttpMethod.GET, "api/product/**").permitAll();
@@ -60,7 +61,7 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.PUT, "api/cart/**").hasAnyRole("ADMIN", "CLIENT");
                     http.requestMatchers(HttpMethod.DELETE, "api/cart/**").hasAnyRole("ADMIN");
                     http.requestMatchers(HttpMethod.GET, "api/marker/**").permitAll();
-                    http.requestMatchers(HttpMethod.POST, "api/marker/**").hasAnyRole("ADMIN","SELLER");
+                    http.requestMatchers(HttpMethod.POST, "api/marker/**").permitAll();
                     http.requestMatchers(HttpMethod.PUT, "api/marker/**").hasAnyRole("ADMIN", "SELLER");
                     http.requestMatchers(HttpMethod.DELETE, "api/marker/**").hasAnyRole("ADMIN");
                     http.requestMatchers(HttpMethod.GET,"api/payment").hasAnyRole("ADMIN","SELLER","CLIENT");

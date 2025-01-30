@@ -14,6 +14,7 @@ import com.ecommerce.api.dto.request.ProductRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -29,9 +30,10 @@ public class ControllerProduct {
     @Autowired
     private ProductServices productServices;
 
-    @PostMapping(value = "/createProduct", consumes = "multipart/form-data")    public ResponseEntity<Map<String, String>> createProduct(
+    @PostMapping(value = "/createProduct", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Map<String, String>> createProduct(
             @RequestParam("image") MultipartFile image,
-            @RequestBody ProductRequest productRequest) {
+            @ModelAttribute ProductRequest productRequest) {
         try {
             productServices.save(productRequest, image);
             return ResponseEntity.ok(Map.of("message", "Creación de producto exitosa."));
@@ -58,10 +60,10 @@ public class ControllerProduct {
     }
 
     @GetMapping("/listProduct")
-    public ResponseEntity<Map<String,String>> listProduct() {
+    public ResponseEntity<Map<String,Object>> listProduct() {
         try {
-            Map<String,String> response = new HashMap<>(Map.of("message", "Listado de productos exitoso."));
-            response.put("productos", productServices.findAll().toString());
+            Map<String,Object> response = new HashMap<>(Map.of("message", "Listado de productos exitoso."));
+            response.put("productos", productServices.findAll());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", "Error al listar los productos", "detalle", e.getMessage()));
