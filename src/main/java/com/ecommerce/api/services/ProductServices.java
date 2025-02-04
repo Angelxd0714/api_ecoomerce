@@ -8,6 +8,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import com.ecommerce.api.dto.request.ProductRequest;
+import com.ecommerce.api.persistence.repository.RepositoryMarkers;
 import com.ecommerce.api.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +26,12 @@ import org.springframework.web.multipart.MultipartFile;
 public class ProductServices implements CrudProduct {
     @Autowired
     private RepositoryProduct repositoryProduct;
+    @Autowired
+    private RepositoryMarkers  repositoryMarkers;
 
 
     @Autowired
-    private S3Service s3Service;
+    private StorageService s3Service;
     @Override
     public void save(ProductRequest product, MultipartFile file) throws IOException {
         try {
@@ -39,8 +42,10 @@ public class ProductServices implements CrudProduct {
             // 2. Transfer the MultipartFile content to the temporary file
             Files.copy(file.getInputStream(), tempFile, StandardCopyOption.REPLACE_EXISTING);
 
+            String name = file.getOriginalFilename() + "-" + System.currentTimeMillis();
+
             // 3. Upload to S3 using the temporary file
-            String url = "s3Service.uploadFile(file.getOriginalFilename(), tempFile.toFile());  // Pass the File object";
+            String url = s3Service.uploadFile(name, tempFile.toFile());  // Pass the File object";
 
             // 4. (Important!) Delete the temporary file after upload
             Files.delete(tempFile); // Ensure cleanup
@@ -51,10 +56,12 @@ public class ProductServices implements CrudProduct {
                             .name(categoryRequest.getName())
                             .description(categoryRequest.getDescription())
                             .build()).toList();
+            log.info("category: {}", category);
             Markers marker = Markers.builder()
                     .name(product.getMarker().getName())
                     .description(product.getMarker().getDescription())
                     .build();
+            repositoryMarkers.save(marker);
 
             Product product1 = Product.builder()
                     .name(product.getName())
@@ -65,6 +72,7 @@ public class ProductServices implements CrudProduct {
                     .categories(category)
                     .marker(marker)
                     .build();
+            log.info("product: {}",category);
 
             repositoryProduct.save(product1);
         } catch (Exception e) {

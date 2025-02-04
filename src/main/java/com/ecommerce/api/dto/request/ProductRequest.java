@@ -2,6 +2,7 @@ package com.ecommerce.api.dto.request;
 
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Builder
@@ -15,7 +16,7 @@ public class ProductRequest {
     private String description;
     private Double price;
     private Integer stock;
-    private List<CategoriesRequest> categoriesRequestLis;
-    private MarkersRequest marker;
+    private List<CategoriesRequest> categoriesRequestLis = new ArrayList<>();
+    private MarkersRequest marker = new MarkersRequest();
 
 }
