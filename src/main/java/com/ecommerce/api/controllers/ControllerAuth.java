@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ecommerce.api.dto.RequestCreateUser;
-import com.ecommerce.api.dto.RequestLogin;
-import com.ecommerce.api.dto.Response;
+import com.ecommerce.api.dto.request.RequestCreateUser;
+import com.ecommerce.api.dto.request.RequestLogin;
+import com.ecommerce.api.dto.response.Response;
 import com.ecommerce.api.services.UserDetailServiceImpl;
 
 import jakarta.validation.Valid;

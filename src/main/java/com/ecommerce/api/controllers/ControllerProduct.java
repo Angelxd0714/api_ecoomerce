@@ -60,14 +60,14 @@ public class ControllerProduct {
     }
 
     @GetMapping("/listProduct")
-    public ResponseEntity<Map<String,Object>> listProduct() {
+    public ResponseEntity<Map<String, Object>> listProduct() { // Cambia a Map<String, Object>
         try {
-            Map<String,Object> response = new HashMap<>(Map.of("message", "Listado de productos exitoso."));
-            response.put("productos", productServices.findAll());
-            return ResponseEntity.ok(response);
+            Map<String, Object> response = new HashMap<>(); // Simplifica la creación del Map
+            response.put("message", "Listado de productos exitoso.");
+            response.put("productos", productServices.findAll()); // Devuelve la lista directamente
+            return ResponseEntity.ok(response); // No necesitas body() si ya tienes el Map
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", "Error al listar los productos", "detalle", e.getMessage()));
-
         }
     }
 

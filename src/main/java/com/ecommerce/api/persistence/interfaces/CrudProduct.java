@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.ecommerce.api.dto.request.ProductRequest;
+import com.ecommerce.api.dto.response.ProductDTO;
 import com.ecommerce.api.persistence.entities.Category;
 import com.ecommerce.api.persistence.entities.Markers;
 import com.ecommerce.api.persistence.entities.Product;
@@ -14,7 +15,7 @@ public interface CrudProduct {
     Product findById(String id);
     void update(ProductRequest product,String id,MultipartFile file) throws IOException;
     void delete(String id);
-    Iterable<Product> findAll();
+    List<ProductDTO> findAll();
     Iterable<Product> findByName(List<String> name);
     Iterable<Product> findByCategory(List<String> category);
     Iterable<Product> findByMarker(List<String> marker);

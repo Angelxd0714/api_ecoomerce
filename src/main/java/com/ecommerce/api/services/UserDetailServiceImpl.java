@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.catalina.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,15 +19,15 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.ecommerce.api.dto.RequestCreateUser;
-import com.ecommerce.api.dto.RequestLogin;
-import com.ecommerce.api.dto.Response;
+import com.ecommerce.api.dto.request.RequestCreateUser;
+import com.ecommerce.api.dto.request.RequestLogin;
+import com.ecommerce.api.dto.response.Response;
 import com.ecommerce.api.persistence.entities.Roles;
 import com.ecommerce.api.persistence.entities.Users;
 import com.ecommerce.api.persistence.repository.RepositoryRoles;
 import com.ecommerce.api.persistence.repository.RepositoryUsers;
 import com.ecommerce.api.utils.JWTutils;
-import java.util.stream.Collectors;
+
 @Service
 public class UserDetailServiceImpl implements UserDetailsService {
     @Autowired

@@ -2,12 +2,16 @@ package com.ecommerce.api.services;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import com.ecommerce.api.dto.request.ProductRequest;
+import com.ecommerce.api.dto.response.CategoryDTO;
+import com.ecommerce.api.dto.response.MarkersDTO;
+import com.ecommerce.api.dto.response.ProductDTO;
 import com.ecommerce.api.persistence.repository.RepositoryMarkers;
 import com.ecommerce.api.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
@@ -130,8 +134,32 @@ public class ProductServices implements CrudProduct {
     }
 
     @Override
-    public Iterable<Product> findAll() {
-        return repositoryProduct.findAll();
+    public List<ProductDTO> findAll() {
+
+        List<Product> products = repositoryProduct.findAll();
+
+
+        return products.stream().map(product -> ProductDTO.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .stock(product.getStock())
+                .image(product.getImage())
+                .categories(product.getCategories().stream().map(category ->
+                 CategoryDTO.builder()
+                                .id(category.getId())
+                                .name(category.getName())
+                                .description(category.getDescription())
+                                .build()).toList())
+                .marker(MarkersDTO.builder()
+                        .id(product.getMarker().getId())
+                        .name(product.getMarker().getName())
+                        .description(product.getMarker().getDescription())
+                        .build())
+                .createdAt(product.getCreatedAt())
+                .updatedAt(product.getUpdatedAt())
+                .build()).toList();
     }
 
     @Override
