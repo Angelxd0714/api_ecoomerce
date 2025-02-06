@@ -37,14 +37,7 @@ public class Product {
     @Column(name = "image")
     private String image;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "product_category", // Nombre de la tabla intermedia
-            joinColumns = @JoinColumn(name = "product_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id")
-
-
-    )
+    @OneToMany(cascade = CascadeType.ALL) // Guarda categorías en cascada
     private List<Category> categories;
 
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = Markers.class)

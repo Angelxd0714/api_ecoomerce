@@ -16,8 +16,8 @@ public interface CrudProduct {
     void update(ProductRequest product,String id,MultipartFile file) throws IOException;
     void delete(String id);
     List<ProductDTO> findAll();
-    Iterable<Product> findByName(List<String> name);
-    Iterable<Product> findByCategory(List<String> category);
-    Iterable<Product> findByMarker(List<String> marker);
-    Iterable<Product> findByPrice(List<Double> price);
+    List<ProductDTO> findByName(List<String> name);
+    List<ProductDTO> findByCategory(String category);
+    List<ProductDTO> findByMarker(List<String> marker);
+    List<ProductDTO> findByPrice(List<Double> price);
 }

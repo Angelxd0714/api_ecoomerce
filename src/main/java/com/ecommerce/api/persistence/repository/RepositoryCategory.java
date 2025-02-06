@@ -10,6 +10,8 @@ import org.springframework.stereotype.Repository;
 
 import com.ecommerce.api.persistence.entities.Category;
 
+import java.util.List;
+
 @Repository
 public interface RepositoryCategory extends CrudRepository<Category,String> {
 
@@ -19,4 +21,5 @@ public interface RepositoryCategory extends CrudRepository<Category,String> {
         void updateCategory(@Param("categoryId") String categoryId, @Param("categoryName") String categoryName);
 
 
+        List<Category> findCategoriesByName(String name);
 }

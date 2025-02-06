@@ -12,6 +12,7 @@ import com.ecommerce.api.dto.request.ProductRequest;
 import com.ecommerce.api.dto.response.CategoryDTO;
 import com.ecommerce.api.dto.response.MarkersDTO;
 import com.ecommerce.api.dto.response.ProductDTO;
+import com.ecommerce.api.persistence.repository.RepositoryCategory;
 import com.ecommerce.api.persistence.repository.RepositoryMarkers;
 import com.ecommerce.api.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
@@ -32,12 +33,15 @@ public class ProductServices implements CrudProduct {
     private RepositoryProduct repositoryProduct;
     @Autowired
     private RepositoryMarkers  repositoryMarkers;
+    @Autowired
+    private RepositoryCategory  repositoryCategory;
 
 
     @Autowired
     private StorageService s3Service;
     @Override
     public void save(ProductRequest product, MultipartFile file) throws IOException {
+        log.info("Saving product: {}", product.getName());
         try {
             Utils utils = new Utils();
             // 1. Use a system-provided temporary file (best practice for temporary files)
@@ -55,28 +59,32 @@ public class ProductServices implements CrudProduct {
             Files.delete(tempFile); // Ensure cleanup
 
 
-            List<Category> category =
-                    product.getCategoriesRequestLis().stream().map(categoryRequest -> Category.builder()
+            List<Category> categories = product.getCategoriesRequestLis().stream()
+                    .map(categoryRequest -> Category.builder()
                             .name(categoryRequest.getName())
                             .description(categoryRequest.getDescription())
-                            .build()).toList();
-            log.info("category: {}", category);
+                            .build())
+                    .toList();
+            List<Category> savedCategories = (List<Category>) repositoryCategory.saveAll(categories); // ¡Guárdalas!
+
+// Guardar marker
             Markers marker = Markers.builder()
                     .name(product.getMarker().getName())
                     .description(product.getMarker().getDescription())
                     .build();
-            repositoryMarkers.save(marker);
+            Markers savedMarker = repositoryMarkers.save(marker); // ¡Guárdalo!
 
+// Vincular al producto
             Product product1 = Product.builder()
                     .name(product.getName())
                     .description(product.getDescription())
                     .price(product.getPrice())
                     .stock(product.getStock())
                     .image(url)
-                    .categories(category)
-                    .marker(marker)
+                    .categories(savedCategories)
+                    .marker(savedMarker)
                     .build();
-            log.info("product: {}",category);
+
 
             repositoryProduct.save(product1);
         } catch (Exception e) {
@@ -163,26 +171,114 @@ public class ProductServices implements CrudProduct {
     }
 
     @Override
-    public Iterable<Product> findByName(List<String> name) {
-       return repositoryProduct.findByName(name);
-    }
+    public List<ProductDTO> findByName(List<String> name) {
 
-    @Override
-    public Iterable<Product> findByCategory(List<String> category) {
-        List<Category> categoryList = category.stream().map(category1 -> Category.builder()
-                .name(category1)
+        if (name.isEmpty()) {
+            throw new RuntimeException("Name list is empty");
+        }
+
+        return repositoryProduct.findByName(name).stream().map(product -> ProductDTO.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .stock(product.getStock())
+                .image(product.getImage())
+                .categories(product.getCategories().stream().map(category ->
+                        CategoryDTO.builder()
+                                .id(category.getId())
+                                .name(category.getName())
+                                .description(category.getDescription())
+                                .build()).toList())
+                .marker(MarkersDTO.builder()
+                        .id(product.getMarker().getId())
+                        .name(product.getMarker().getName())
+                        .description(product.getMarker().getDescription())
+                        .build())
+                .createdAt(product.getCreatedAt())
+                .updatedAt(product.getUpdatedAt())
                 .build()).toList();
-        return repositoryProduct.findByCategories(categoryList);
     }
 
     @Override
-    public Iterable<Product> findByMarker(List<String> marker) {
-       return repositoryProduct.findByMarker(marker);
+    public List<ProductDTO> findByCategory(String category) {
+         List<Category> categories = repositoryCategory.findCategoriesByName(category);
+        return repositoryProduct.findByCategories(categories).stream().map(product -> ProductDTO.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .stock(product.getStock())
+                .image(product.getImage())
+                .categories(product.getCategories().stream().map(category1 ->
+                        CategoryDTO.builder()
+                                .id(category1.getId())
+                                .name(category1.getName())
+                                .description(category1.getDescription())
+                                .build()).toList())
+                .marker(MarkersDTO.builder()
+                        .id(product.getMarker().getId())
+                        .name(product.getMarker().getName())
+                        .description(product.getMarker().getDescription())
+                        .build())
+                .createdAt(product.getCreatedAt())
+                .updatedAt(product.getUpdatedAt())
+                .build()).toList();
     }
 
     @Override
-    public Iterable<Product> findByPrice(List<Double> price) {
-        return repositoryProduct.findByPrice(price);
+    public List<ProductDTO> findByMarker(List<String> marker) {
+        return repositoryProduct.findByMarker(marker).stream().map(product -> ProductDTO.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .stock(product.getStock())
+                .image(product.getImage())
+                .categories(product.getCategories().stream().map(category ->
+                        CategoryDTO.builder()
+                                .id(category.getId())
+                                .name(category.getName())
+                                .description(category.getDescription())
+                                .build()).toList())
+                .marker(MarkersDTO.builder()
+                        .id(product.getMarker().getId())
+                        .name(product.getMarker().getName())
+                        .description(product.getMarker().getDescription())
+                        .build())
+                .createdAt(product.getCreatedAt())
+                .updatedAt(product.getUpdatedAt())
+                .build()).toList();
+    }
+
+    @Override
+    public List<ProductDTO> findByPrice(List<Double> price) {
+        if (price.isEmpty()) {
+            throw new RuntimeException("Price list is empty");
+        } else {
+            return repositoryProduct.findByPrice(price).stream().map(product -> ProductDTO.builder()
+                    .id(product.getId())
+                    .name(product.getName())
+                    .description(product.getDescription())
+                    .price(product.getPrice())
+                    .stock(product.getStock())
+                    .image(product.getImage())
+                    .categories(product.getCategories().stream().map(category ->
+                            CategoryDTO.builder()
+                                    .id(category.getId())
+                                    .name(category.getName())
+                                    .description(category.getDescription())
+                                    .build()).toList())
+                    .marker(MarkersDTO.builder()
+                            .id(product.getMarker().getId())
+                            .name(product.getMarker().getName())
+                            .description(product.getMarker().getDescription())
+                            .build())
+                    .createdAt(product.getCreatedAt())
+                    .updatedAt(product.getUpdatedAt())
+                    .build()).toList();
+
+    }
     }
     
 }
