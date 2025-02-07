@@ -1,5 +1,6 @@
 package com.ecommerce.api.persistence.repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import jakarta.transaction.Transactional;
@@ -15,16 +16,16 @@ import com.ecommerce.api.persistence.entities.Markers;
 import com.ecommerce.api.persistence.entities.Product;
 
 @Repository
-public interface RepositoryProduct extends CrudRepository<Product,String> {
+public interface RepositoryProduct extends CrudRepository<Product,Long> {
     List<Product> findAll();
     @Query("select p from products p where p.name in ?1")
     List<Product> findByName(List<String> names);
     @Query("SELECT p FROM products p JOIN p.categories c WHERE c IN :categories")
     List<Product> findByCategories(@Param("categories") List<Category> categories);
-    @Query("select p from products p where p.marker in ?1")
-    List<Product> findByMarker(List<String> marker);
+    @Query("select p from products p JOIN p.marker c where c.name in ?1")
+    List<Product> findByMarker(String marker);
     @Query("select p from products p where p.price in ?1")
-    List<Product> findByPrice(List<Double> price);
+    List<Product> findByPrice(BigDecimal price);
     @Modifying
     @Transactional
     @Query("UPDATE products p SET " +

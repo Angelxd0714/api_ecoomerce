@@ -40,7 +40,7 @@ public class Product {
     @OneToMany(cascade = CascadeType.ALL) // Guarda categorías en cascada
     private List<Category> categories;
 
-    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Markers.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Markers.class,cascade = CascadeType.ALL)
     private Markers marker;
     @Column(name = "created_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

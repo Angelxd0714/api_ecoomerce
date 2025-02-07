@@ -46,7 +46,7 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.GET, "api/product/**").permitAll();
                     http.requestMatchers(HttpMethod.GET, "api/roles/**").permitAll();
                     http.requestMatchers(HttpMethod.POST,"api/product/**").permitAll();
-                    http.requestMatchers(HttpMethod.PUT, "api/product/**").hasAnyRole("ADMIN", "SELLER");
+                    http.requestMatchers(HttpMethod.PUT, "api/product/**").permitAll();
                     http.requestMatchers(HttpMethod.DELETE, "api/product/**").hasAnyRole("ADMIN", "SELLER");
                     http.requestMatchers(HttpMethod.GET, "api/user/**").permitAll();
                     http.requestMatchers(HttpMethod.POST, "api/user/**").hasAnyRole("ADMIN", "CLIENT", "SELLER");

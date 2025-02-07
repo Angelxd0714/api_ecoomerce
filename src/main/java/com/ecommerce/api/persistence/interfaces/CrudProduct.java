@@ -1,6 +1,7 @@
 package com.ecommerce.api.persistence.interfaces;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.ecommerce.api.dto.request.ProductRequest;
@@ -12,12 +13,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface CrudProduct {
     void save(ProductRequest product, MultipartFile file) throws IOException;
-    Product findById(String id);
-    void update(ProductRequest product,String id,MultipartFile file) throws IOException;
-    void delete(String id);
+    ProductDTO findById(Long id);
+    void update(ProductRequest product,Long id,MultipartFile file) throws IOException;
+    void delete(Long id);
     List<ProductDTO> findAll();
-    List<ProductDTO> findByName(List<String> name);
+    List<ProductDTO> findByName(String name);
     List<ProductDTO> findByCategory(String category);
-    List<ProductDTO> findByMarker(List<String> marker);
-    List<ProductDTO> findByPrice(List<Double> price);
+    List<ProductDTO> findByMarker(String marker);
+    List<ProductDTO> findByPrice(BigDecimal price);
 }

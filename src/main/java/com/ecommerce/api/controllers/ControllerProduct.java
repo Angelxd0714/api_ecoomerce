@@ -1,6 +1,7 @@
 package com.ecommerce.api.controllers;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,7 +45,7 @@ public class ControllerProduct {
     }
     @PutMapping("/updateProduct/{id}")
     public ResponseEntity<Map<String,String>> updateProduct(
-            @PathVariable String id,
+            @PathVariable Long id,
             @RequestPart("image") MultipartFile image,
            @RequestPart ProductRequest productRequest) throws IOException {
         try {
@@ -73,7 +74,7 @@ public class ControllerProduct {
 
 
     @DeleteMapping("/deleteProduct/{id}")
-    public ResponseEntity<Map<String,String>> deleteProduct(@PathVariable String id) {
+    public ResponseEntity<Map<String,String>> deleteProduct(@PathVariable Long id) {
         try {
             productServices.delete(id);
             return ResponseEntity.ok(Map.of("message", "Eliminación de producto exitosa."));
@@ -84,10 +85,10 @@ public class ControllerProduct {
     }
 
     @GetMapping("/listProductByName/{name}")
-    public ResponseEntity<Map<String,String>> listProductByName(@PathVariable List<String> name) {
+    public ResponseEntity<Map<String,Object>> listProductByName(@PathVariable String name) {
         try {
-            Map<String,String> response = new HashMap<>(Map.of("message", "Listado de productos exitoso."));
-            response.put("productos", productServices.findByName(name).toString());
+            Map<String,Object> response = new HashMap<>(Map.of("message", "Listado de productos exitoso."));
+            response.put("productos", productServices.findByName(name));
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", "Error al listar los productos", "detalle", e.getMessage()));
@@ -106,23 +107,34 @@ public class ControllerProduct {
     }
 
     @GetMapping("/listProductByMarker/{marker}")
-    public ResponseEntity<Map<String,String>> listProductByMarker(@PathVariable List<String> marker) {
+    public ResponseEntity<Map<String,Object>> listProductByMarker(@PathVariable String marker) {
         try {
-            Map<String,String> response = new HashMap<>(Map.of("message", "Listado de productos exitoso."));
-            response.put("productos", productServices.findByMarker(marker).toString());
+            Map<String,Object> response = new HashMap<>(Map.of("message", "Listado de productos exitoso."));
+            response.put("productos", productServices.findByMarker(marker));
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", "Error al listar los productos", "detalle", e.getMessage()));
         }
     }
     @GetMapping("/listProductByPrice/{price}")
-    public ResponseEntity<Map<String,String>> listProductByPrice(@PathVariable List<Double> price) {
+    public ResponseEntity<Map<String,Object>> listProductByPrice(@PathVariable BigDecimal price) {
         try {
-            Map<String, String> response = new HashMap<>(Map.of("message", "Listado de productos exitoso."));
-            response.put("productos", productServices.findByPrice(price).toString());
+            Map<String, Object> response = new HashMap<>(Map.of("message", "Listado de productos exitoso."));
+            response.put("productos", productServices.findByPrice(price));
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", "Error al listar los productos", "detalle", e.getMessage()));
         }
     }
+    @GetMapping("/listProductById/{id}")
+    public ResponseEntity<Map<String,Object>> listProductById(@PathVariable Long id) {
+        try {
+            Map<String, Object> response = new HashMap<>(Map.of("message", "Listado de productos exitoso."));
+            response.put("productos", productServices.findById(id));
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Error al listar los productos", "detalle", e.getMessage()));
+        }
+    }
+
 }
