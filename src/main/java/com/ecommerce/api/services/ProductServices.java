@@ -176,9 +176,10 @@ public class ProductServices implements CrudProduct {
                             .build()));
             existingProduct.setMarker(existingMarker);
         }
+        log.info("Product updated: {}", existingProduct.getMarker().getName());
 
         // 6. Guardar cambios (JPA actualiza automáticamente)
-        repositoryProduct.save(existingProduct);
+        repositoryProduct.updateProductoPersonalize(id, existingProduct);
     }
 
     @Override

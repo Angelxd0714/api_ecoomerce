@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.ecommerce.api.dto.request.ProductRequest;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.HttpStatus;
@@ -26,6 +28,7 @@ import com.ecommerce.api.services.ProductServices;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api/product")
+@Slf4j
 public class ControllerProduct {
 
     @Autowired
@@ -44,21 +47,58 @@ public class ControllerProduct {
         }
     }
     @PutMapping("/updateProduct/{id}")
-    public ResponseEntity<Map<String,String>> updateProduct(
+    public ResponseEntity<Map<String, String>> updateProduct(
             @PathVariable Long id,
             @RequestPart("image") MultipartFile image,
-           @RequestPart ProductRequest productRequest) throws IOException {
+            @RequestPart ProductRequest productRequest) {
         try {
+            // Validate input parameters
+            if (id == null) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Product ID cannot be null"));
+            }
+
+            if (image == null || image.isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Image file is required"));
+            }
+
+            if (productRequest == null) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Product request data is required"));
+            }
+
+            // Validate image type
+            String contentType = image.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Invalid file type. Only images are allowed"));
+            }
+
             productServices.update(productRequest, id, image);
-            return ResponseEntity.ok(Map.of("message", "Actualización de producto exitosa."));
+            return ResponseEntity.ok(Map.of("message", "Product updated successfully"));
+
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Product not found", "detail", e.getMessage()));
+
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Error processing image file", "detail", e.getMessage()));
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Invalid input data", "detail", e.getMessage()));
+
         } catch (Exception e) {
+            log.error("Unexpected error during product update", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Error al actualizar el producto", "detalle", e.getMessage()));
+                    .body(Map.of("error", "An unexpected error occurred",
+                            "detail", "Please contact support if the problem persists"));
         }
 
 
-
-    }
+}
 
     @GetMapping("/listProduct")
     public ResponseEntity<Map<String, Object>> listProduct() { // Cambia a Map<String, Object>
