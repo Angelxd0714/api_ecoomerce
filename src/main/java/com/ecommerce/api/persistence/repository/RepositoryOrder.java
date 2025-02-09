@@ -15,7 +15,7 @@ import com.ecommerce.api.persistence.entities.Orders;
 import java.time.*;
 
 @Repository
-public interface RepositoryOrder extends CrudRepository<Orders,String> {
+public interface RepositoryOrder extends CrudRepository<Orders,Long> {
 
         @Query("SELECT o FROM orders o WHERE o.orderDate = :orderDate")
         List<Orders> findByOrderDate(@Param("orderDate") LocalDateTime orderDate);

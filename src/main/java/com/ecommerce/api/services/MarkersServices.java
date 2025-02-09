@@ -7,6 +7,8 @@ import com.ecommerce.api.persistence.entities.Markers;
 import com.ecommerce.api.persistence.interfaces.CrudMarkers;
 import com.ecommerce.api.persistence.repository.RepositoryMarkers;
 
+import java.util.List;
+
 @Service
 public class MarkersServices implements CrudMarkers {
     @Autowired
@@ -18,13 +20,13 @@ public class MarkersServices implements CrudMarkers {
     }
 
     @Override
-    public Markers findById(String id) {
+    public Markers findById(Long id) {
        return repositoryMarkers.findById(id).orElse(null);
     }
 
     @Override
     public void update(Markers markers, Long id) {
-        repositoryMarkers.findById(String.valueOf(id)).ifPresentOrElse(x->{
+        repositoryMarkers.findById(id).ifPresentOrElse(x->{
             repositoryMarkers.updateMarker(markers,id);
         },null);
 
@@ -32,16 +34,16 @@ public class MarkersServices implements CrudMarkers {
     }
 
     @Override
-    public void delete(String id) {
+    public void delete(Long id) {
        repositoryMarkers.deleteById(id);
     }
 
     @Override
-    public Iterable<Markers> findAll() {
+    public List<Markers> findAll() {
        return repositoryMarkers.findAll();
     }
 
-    public boolean existsById(String id) {
+    public boolean existsById(Long id) {
         return repositoryMarkers.existsById(id);
     }
 

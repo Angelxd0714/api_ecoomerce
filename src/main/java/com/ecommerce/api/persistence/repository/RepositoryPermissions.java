@@ -7,9 +7,9 @@ import java.util.Optional;
 import com.ecommerce.api.persistence.entities.Permissions;
 
 @Repository
-public interface RepositoryPermissions extends CrudRepository<Permissions,String> {
- Optional<Permissions> findById(String id);
+public interface RepositoryPermissions extends CrudRepository<Permissions,Long> {
+ Optional<Permissions> findById(Long id);
 
-void deleteById(String id);
+void deleteById(Long id);
 
 }

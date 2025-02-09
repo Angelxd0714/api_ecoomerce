@@ -13,7 +13,7 @@ import com.ecommerce.api.persistence.entities.Category;
 import java.util.List;
 
 @Repository
-public interface RepositoryCategory extends CrudRepository<Category,String> {
+public interface RepositoryCategory extends CrudRepository<Category,Long> {
 
         @Modifying
         @Transactional

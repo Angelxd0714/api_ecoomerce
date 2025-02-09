@@ -10,7 +10,7 @@ import com.ecommerce.api.persistence.entities.Payments;
 import java.time.LocalDate;
 
 @Repository
-public interface RepositoryPayment extends CrudRepository<Payments,String> {
+public interface RepositoryPayment extends CrudRepository<Payments,Long> {
     Payments findByPaymentMethod(String paymentMethod);
     Payments findByPaymentStatus(String status);
     Payments findByTransactionId(String transactionId);
