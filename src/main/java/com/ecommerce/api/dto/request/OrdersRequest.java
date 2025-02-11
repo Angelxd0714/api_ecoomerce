@@ -12,7 +12,7 @@ import java.util.Set;
 @Setter
 public class OrdersRequest {
     private Long id;
-    private Long userId;
+    private UserRequest userId;
     private LocalDate  orderDate;
    private String status;
     private Double totalAmount;

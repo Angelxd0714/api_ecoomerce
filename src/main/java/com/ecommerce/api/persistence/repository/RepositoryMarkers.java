@@ -19,5 +19,5 @@ public interface RepositoryMarkers extends CrudRepository<Markers,Long> {
     @Modifying
     @Query("UPDATE markers m SET m.name = :#{#markers.name}, m.description = :#{#markers.description} WHERE m.id = :id")
     void updateMarker(@Param("markers") Markers markers, @Param("id") Long id);
-
+    List<Markers> findAll();
 }

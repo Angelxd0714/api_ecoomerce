@@ -21,15 +21,17 @@ public interface RepositoryOrder extends CrudRepository<Orders,Long> {
         List<Orders> findByOrderDate(@Param("orderDate") LocalDateTime orderDate);
 
         @Query("SELECT o FROM orders o WHERE o.status IN :statuses")
-        List<Orders> findByStatus(@Param("statuses") List<String> orderStatus);
+        List<Orders> findByStatus(@Param("statuses") String orderStatus);
 
         @Query("SELECT o FROM orders o WHERE o.user IN :userIds")
-        List<Orders> findByUserId(@Param("userIds") List<String> userId);
+        List<Orders> findByUserId(@Param("userIds") List<Long> userId);
 
         @Modifying
         @Transactional
         @Query("UPDATE orders o SET o.status = :status WHERE o.id = :id")
         void updateOrder(@Param("id") Long id, @Param("status") String status);
+
+        List<Orders> findAll();
 
 
 }

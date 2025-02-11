@@ -1,5 +1,7 @@
 package com.ecommerce.api.services;
 
+import com.ecommerce.api.dto.request.MarkersRequest;
+import com.ecommerce.api.dto.response.MarkersDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,19 +17,50 @@ public class MarkersServices implements CrudMarkers {
     private RepositoryMarkers repositoryMarkers;
 
     @Override
-    public void save(Markers markers) {
-       repositoryMarkers.save(markers);
+    public void save(MarkersRequest markers) {
+
+        Markers markers1 = Markers.builder()
+                .name(markers.getName())
+                .description(markers.getDescription())
+                .createdAt(markers.getCreatedAt())
+                .updatedAt(markers.getUpdatedAt())
+                .updatedAt(markers.getUpdatedAt())
+                .build();
+        repositoryMarkers.save(markers1);
     }
 
     @Override
-    public Markers findById(Long id) {
-       return repositoryMarkers.findById(id).orElse(null);
+    public MarkersDTO findById(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("El id no puede ser nulo");
+        }
+      if (!repositoryMarkers.existsById(id)) {
+            throw new IllegalArgumentException("El marcador no existe");
+        }
+       if (repositoryMarkers.findById(id).isEmpty()) {
+           throw new IllegalArgumentException("El marcador no existe");
+       }
+
+        return MarkersDTO.builder()
+                .name(repositoryMarkers.findById(id).get().getName())
+                .description(repositoryMarkers.findById(id).get().getDescription())
+                .createdAt(repositoryMarkers.findById(id).get().getCreatedAt()).build();
+
     }
 
     @Override
-    public void update(Markers markers, Long id) {
+    public void update(MarkersRequest markers, Long id) {
+        Markers markers1 = Markers.builder()
+                .name(markers.getName())
+                .description(markers.getDescription())
+                .createdAt(markers.getCreatedAt())
+                .updatedAt(markers.getUpdatedAt())
+                .build();
+        if (id == null) {
+            throw new IllegalArgumentException("El id no puede ser nulo");
+        }
         repositoryMarkers.findById(id).ifPresentOrElse(x->{
-            repositoryMarkers.updateMarker(markers,id);
+            repositoryMarkers.updateMarker(markers1,id);
         },null);
 
 
@@ -39,8 +72,15 @@ public class MarkersServices implements CrudMarkers {
     }
 
     @Override
-    public List<Markers> findAll() {
-       return repositoryMarkers.findAll();
+    public List<MarkersDTO> findAll() {
+
+
+        return repositoryMarkers.findAll().stream().map(x-> MarkersDTO.builder()
+                .name(x.getName())
+                .description(x.getDescription())
+                .createdAt(x.getCreatedAt())
+                .updatedAt(x.getUpdatedAt())
+                .build()).toList();
     }
 
     public boolean existsById(Long id) {
