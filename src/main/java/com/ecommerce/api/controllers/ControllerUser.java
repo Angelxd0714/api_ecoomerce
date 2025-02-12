@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 @CrossOrigin("*")
 @RestController
@@ -26,50 +29,54 @@ public class ControllerUser {
     private UsersServices userDetailService;
 
     @GetMapping("/all")
-    public ResponseEntity<?> getAllUsers(){
+    public ResponseEntity<Map<String,Object>> getAllUsers(){
+       Map<String,Object> response = new HashMap<>(Map.of("message", "Listado de usuarios exitoso."));
         try {
-            return ResponseEntity.ok(userDetailService.getAllUsers());
+            response.put("users", userDetailService.getAllUsers());
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage() + HttpStatus.BAD_REQUEST);
-        
+            return ResponseEntity.badRequest().body(Map.of("error", "Error al listar los usuarios", "detalle", e.getMessage()));
         }
     }
     @GetMapping("/getUserOne/{id}")
-    public ResponseEntity<?> getUserOne(@PathVariable Long id){
+    public ResponseEntity<Map<String,Object>> getUserOne(@PathVariable Long id){
+      Map<String,Object> response = new HashMap<>(Map.of("message", "Listado de usuarios exitoso."));
         try {
-            return ResponseEntity.ok(userDetailService.getUserIdent(id));
+            response.put("users", userDetailService.getUserById(id));
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage() + HttpStatus.BAD_REQUEST);
-
+            return ResponseEntity.badRequest().body(Map.of("error", "Error al listar los usuarios", "detalle", e.getMessage()));
         }
     }
     @GetMapping("/getUserEmail/{email}")
-    public ResponseEntity<?> getUserEmail(@PathVariable String email){
+    public ResponseEntity<Map<String,Object>> getUserEmail(@PathVariable String email){
+        Map<String,Object> response = new HashMap<>(Map.of("message", "Listado de usuarios exitoso."));
         try {
-            return ResponseEntity.ok(userDetailService.getUserByEmail(email));
+            response.put("users", userDetailService.getUserByEmail(email));
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage() + HttpStatus.BAD_REQUEST);
-
+            return ResponseEntity.badRequest().body(Map.of("error", "Error al listar los usuarios", "detalle", e.getMessage()));
         }
     }
     @PutMapping("/updateUser/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody Users user){
+    public ResponseEntity<Map<String,Object>> updateUser(@PathVariable Long id, @RequestBody Users user){
+        Map<String,Object> response = new HashMap<>(Map.of("message", "Usuario actualizado exitosamente."));
         try {
             userDetailService.updateUser(user, id);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage() + HttpStatus.BAD_REQUEST);
-
+            return ResponseEntity.badRequest().body(Map.of("error", "Error al actualizar el usuario", "detalle", e.getMessage()));
         }
     }
     @PostMapping("/createUser")
-    public ResponseEntity<?> createUser(@RequestBody Users user){
+    public ResponseEntity<Map<String,Object>> createUser(@RequestBody Users user){
+         Map<String,Object> response = new HashMap<>(Map.of("message", "Usuario creado exitosamente."));
+
         try {
             userDetailService.saveUser(user);
-            return ResponseEntity.ok().body(HttpStatus.CREATED);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage() + HttpStatus.BAD_REQUEST);
-
+            return ResponseEntity.badRequest().body(Map.of("error", "Error al crear el usuario", "detalle", e.getMessage()));
         }
     }
     

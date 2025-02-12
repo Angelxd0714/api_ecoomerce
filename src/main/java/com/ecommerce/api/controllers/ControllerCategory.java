@@ -1,5 +1,6 @@
 package com.ecommerce.api.controllers;
 
+import com.ecommerce.api.dto.request.CategoriesRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ecommerce.api.persistence.entities.Category;
 import com.ecommerce.api.services.CategoryServices;
 
+import java.util.HashMap;
+import java.util.Map;
 
 
 @CrossOrigin("*")
@@ -26,55 +29,80 @@ public class ControllerCategory {
     private CategoryServices serviceCategory;
 
     @GetMapping("/all")
-    public ResponseEntity<?> getAllCategories() {
+    public ResponseEntity<Map<String, Object>> getAllCategories() {
+        Map<String, Object> response = new HashMap<>(Map.of("message", "Listado de categorias exitoso."));
+        response.put("categorias", serviceCategory.getAll());
         try {
-            System.out.println(serviceCategory.getAll());
-            return ResponseEntity.ok(serviceCategory.getAll());
+
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage() + HttpStatus.BAD_REQUEST);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Error al listar las categorias");
+            errorResponse.put("detalle", e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
         }
     }
 
     @GetMapping("/getCategoryOne/{id}")
-    public ResponseEntity<?> getCategoryById(@PathVariable String id) {
+    public ResponseEntity<Map<String, Object>> getCategoryById(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>(Map.of("message", "Listado de categorias exitoso."));
+        response.put("categorias", serviceCategory.getOne(id));
         try {
-            return ResponseEntity.ok(serviceCategory.getOne(id));
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage() + HttpStatus.BAD_REQUEST);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Error al listar las categorias");
+            errorResponse.put("detalle", e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
         }
     }
 
     @PostMapping("/createCategory")
-    public ResponseEntity<?> createCategory(@RequestBody Category category) {
+    public ResponseEntity<Map<String, String>> createCategory(@RequestBody CategoriesRequest category) {
+        Map<String, String> response = new HashMap<>();
         try {
-            System.out.println(category);
             serviceCategory.save(category);
-            return ResponseEntity.ok(HttpStatus.CREATED);
+            response.put("message", "Category created successfully");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage() + HttpStatus.BAD_REQUEST);
+            response.put("error", "Error creating category");
+            response.put("detail", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
 
     @PutMapping("/updateCategory/{id}")
-    public ResponseEntity<?> updateCategory(@RequestBody Category category, @PathVariable String id) {
-        try {
-            if(serviceCategory.getOne(id) == null){
-              return ResponseEntity.badRequest().body("Category not found" + HttpStatus.BAD_REQUEST);
+    public ResponseEntity<Map<String, String>> updateCategory(@RequestBody CategoriesRequest category, @PathVariable Long id) {
+            try {
+                serviceCategory.update(category, id);
+                return ResponseEntity.ok(Map.of("message", "Category updated successfully"));
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Error updating category", "detail", e.getMessage()));
             }
-            serviceCategory.update(category, id);
-            return ResponseEntity.ok(HttpStatus.OK);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage() + HttpStatus.BAD_REQUEST);
-        }
     }
 
     @DeleteMapping("/deleteCategory/{id}")
-    public ResponseEntity<?> deleteCategory(@PathVariable String id) {
+    public ResponseEntity<Map<String, String>> deleteCategory(@PathVariable Long id) {
         try {
             serviceCategory.delete(id);
-            return ResponseEntity.ok(HttpStatus.OK);
+            return ResponseEntity.ok(Map.of("message", "Category deleted successfully"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage() + HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(Map.of("error", "Error deleting category", "detail", e.getMessage()));
+        }
+
+    }
+
+    @GetMapping("/getCategoryByName/{name}")
+    public ResponseEntity<Map<String, Object>> getCategoryByName(@PathVariable String name) {
+        try {
+            Map<String, Object> response = new HashMap<>(Map.of("message", "Listado de categorias exitoso."));
+            response.put("categorias", serviceCategory.getOneByName(name));
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Error al listar las categorias");
+            errorResponse.put("detalle", e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
         }
     }
 }

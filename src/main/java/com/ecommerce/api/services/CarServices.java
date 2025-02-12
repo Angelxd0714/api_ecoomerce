@@ -3,6 +3,7 @@ package com.ecommerce.api.services;
 import com.ecommerce.api.dto.request.CarRequest;
 import com.ecommerce.api.dto.request.ProductRequest;
 import com.ecommerce.api.dto.response.CarDTO;
+import com.ecommerce.api.persistence.entities.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -101,12 +102,30 @@ public class CarServices implements CrudCar {
 
     }
 
-    public void update(Long id, Car car) {
+    public void update(Long id, CarRequest car) {
+        if (id == null) {
+            throw new IllegalArgumentException("El id no puede ser nulo");
+        }
+        if (car == null) {
+            throw new IllegalArgumentException("El carro no puede ser nulo");
+        }
+        if (car.getUserId() == null) {
+            throw new IllegalArgumentException("El id del usuario no puede ser nulo");
+        }
+        Product [] products = Arrays.stream(car.getProductId()).map(product -> Product.builder()
+                .id(Long.parseLong(product.getId()))
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .stock(product.getStock())
+                .build()).toArray(Product[]::new);
+
+
        repositoryCar.findById(id).ifPresentOrElse(x->{
-        x.setProductId(car.getProductId());
+        x.setProductId(products);
         x.setUpdatedAt(car.getUpdatedAt());;
         x.setCreatedAt(car.getCreatedAt());
-        x.setUserId(car.getUserId());
+        x.setUserId(Users.builder().id(car.getUserId()).build());
         repositoryCar.save(x);
        }, null);
     }

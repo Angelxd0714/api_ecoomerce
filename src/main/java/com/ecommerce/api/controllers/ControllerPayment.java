@@ -1,5 +1,9 @@
 package com.ecommerce.api.controllers;
 
+import com.ecommerce.api.dto.request.OrdersRequest;
+import com.ecommerce.api.dto.request.PaymentRequest;
+import com.ecommerce.api.dto.request.ProductRequest;
+import com.ecommerce.api.dto.request.UserRequest;
 import com.stripe.model.climate.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.Collections;
+import java.util.HashMap;
 
 import com.ecommerce.api.persistence.entities.Orders;
 import com.ecommerce.api.persistence.entities.Payments;
@@ -36,33 +41,43 @@ public class ControllerPayment {
     private ServiceStripe serviceStripe;
 
     @PostMapping("/create-payment-intent")
-    public ResponseEntity<Map<String, String>> createPayment(@RequestBody Order orders, @RequestParam("userId") Users user,
-                                                             @RequestParam("orders") Orders order) {
+    public ResponseEntity<Map<String, String>> createPayment(@RequestBody Order orders, @RequestParam("userId") UserRequest user,
+                                                             @RequestParam("orders") OrdersRequest order) {
         if (Objects.equals(orders.getStatus(), "CANCELED")) {
             return  ResponseEntity.badRequest().body(Collections.singletonMap("error", "Payment canceled"));
         }
         try {
             PaymentIntent paymentIntent = serviceStripe.createPaymentIntent(orders);
-            Map<String, String> response = new HashMap<>();
-            response.put("clientSecret", paymentIntent.getClientSecret());
-            response.put("id", paymentIntent.getId());
-            response.put("status", paymentIntent.getStatus());
-            response.put("amount", String.valueOf(paymentIntent.getAmount()));
-            response.put("currency", paymentIntent.getCurrency());
-            response.put("description", paymentIntent.getDescription());
-            Payments payments = new Payments();
-            payments.setPaymentAmount(orders.getAmountTotal());
-            payments.setId(Long.valueOf(paymentIntent.getId()));
-            payments.setPaymentCurrency(paymentIntent.getCurrency());
+      ;
+            OrdersRequest  response = new OrdersRequest();
+            response.setOrderDate(LocalDate.ofEpochDay(orders.getCreated()));
+            response.setStatus(orders.getStatus());
+            response.setProductRequest((Set<ProductRequest>) orders.getProductObject());
+            response.setTotalAmount(Double.valueOf(orders.getAmountTotal()));
 
-            payments.setCreatedAt(LocalDate.now());
-            payments.setPaymentStatus(paymentIntent.getStatus());
-            payments.setUserId(user);
-            payments.setOrderId(order);
-            paymentServices.createPayment(payments);
-            return ResponseEntity.ok(response);
+
+
+
+            PaymentRequest paymentRequest = new PaymentRequest();
+            paymentRequest.setPaymentAmount(orders.getAmountTotal());
+            paymentRequest.setPaymentCurrency(paymentIntent.getCurrency());
+            paymentRequest.setPaymentStatus(paymentIntent.getStatus());
+            paymentRequest.setCreatedAt(LocalDate.now());
+            paymentRequest.setPaymentMethod(paymentIntent.getPaymentMethodTypes().get(0));
+            paymentRequest.setUserId(user);
+            paymentRequest.setOrderId(order);
+
+            paymentServices.createPayment(paymentRequest);
+            Map<String, String> responseMap = new HashMap<>();
+            responseMap.put("clientSecret", paymentIntent.getClientSecret());
+            responseMap.put("paymentIntentId", paymentIntent.getId());
+            return ResponseEntity.ok(responseMap);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Error al crear el pago");
+            errorResponse.put("detalle", e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
+
         }
 
     }
@@ -75,45 +90,54 @@ public class ControllerPayment {
         }
     }
     @GetMapping("/get-payment-by-user/{userId}")
-    public ResponseEntity<?> getPaymentsByUser(@PathVariable Long userId) {
+    public ResponseEntity<Map<String,Object>> getPaymentsByUser(@PathVariable Long userId) {
+        Map<String,Object> response = new HashMap<>(Map.of("message", "Listado de pagos exitoso."));
         try {
-            return ResponseEntity.ok(paymentServices.findByUserId(userId));
+            response.put("payments", paymentServices.findByUserId(userId));
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", "Error al listar los pagos", "detalle", e.getMessage()));
         }
     }
     @GetMapping("/get-payment-by-order/{orderId}")
     public ResponseEntity<?> getPaymentsByOrder(@PathVariable Long orderId) {
+        Map<String,Object> response = new HashMap<>(Map.of("message", "Listado de pagos exitoso."));
         try {
-            return ResponseEntity.ok(paymentServices.findByOrderId(orderId));
+            response.put("payments", paymentServices.findByOrderId(orderId));
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", "Error al listar los pagos", "detalle", e.getMessage()));
         }
     }
     @GetMapping("/get-payment-by-id/{id}")
-    public ResponseEntity<?> getPaymentsById(@PathVariable String id) {
+    public ResponseEntity<Map<String,Object>> getPaymentsById(@PathVariable Long id) {
+        Map<String,Object> response = new HashMap<>(Map.of("message", "Listado de pagos exitoso."));
         try {
-            return ResponseEntity.ok(paymentServices.findById(id));
+            response.put("payments", paymentServices.findById(id));
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", "Error al listar los pagos", "detalle", e.getMessage()));
         }
     }
     @PutMapping("/update-payment/{id}")
-    public ResponseEntity<?> updatePayment(@PathVariable String id, @RequestBody Payments payments) {
+    public ResponseEntity<Map<String,String>> updatePayment(@PathVariable Long id, @RequestBody PaymentRequest payments) {
+         Map<String,String> response = new HashMap<>(Map.of("message", "Pago actualizado exitosamente."));
+
         try {
             paymentServices.updatePayment(payments, id);
-            return ResponseEntity.ok(HttpStatus.OK);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", "Error al actualizar el pago", "detalle", e.getMessage()));
         }
     }
     @DeleteMapping("/delete-payment/{id}")
-    public ResponseEntity<?> deletePayment(@PathVariable String id) {
+    public ResponseEntity<Map<String,String>> deletePayment(@PathVariable Long id) {
+        Map<String,String> response = new HashMap<>(Map.of("message", "Pago eliminado exitosamente."));
         try {
             paymentServices.deletePayment(id);
-            return ResponseEntity.ok(HttpStatus.OK);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", "Error al eliminar el pago", "detalle", e.getMessage()));
         }
     }
 }

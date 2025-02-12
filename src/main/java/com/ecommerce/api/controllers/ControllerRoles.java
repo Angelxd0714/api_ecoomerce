@@ -1,5 +1,6 @@
 package com.ecommerce.api.controllers;
 
+import com.ecommerce.api.dto.request.RolRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ecommerce.api.persistence.entities.Roles;
 import com.ecommerce.api.services.RolesServices;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api/roles")
@@ -22,46 +26,61 @@ public class ControllerRoles {
     private RolesServices rolesServices;
 
     @GetMapping("/all")
-    public ResponseEntity<?> getAllRoles(){
+    public ResponseEntity<Map<String,Object>> getAllRoles(){
+        Map<String,Object> response = new HashMap<>();
         try {
-            return ResponseEntity.ok(rolesServices.findAll());
+            response.put("roles", rolesServices.findAll());
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
     @GetMapping("/getRol/{id}")
-    public ResponseEntity<?> getRoleById(String id){
+    public ResponseEntity<Map<String,Object>> getRoleById(String id){
+       Map<String,Object> response = new HashMap<>();
         try {
-            return ResponseEntity.ok(rolesServices.findById(id));
+            response.put("role", rolesServices.findById(Long.parseLong(id)));
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
     @PostMapping("/create")
-    public ResponseEntity<?> createRole(Roles roles){
+    public ResponseEntity<?> createRole(RolRequest roles){
+        Map<String,String> response = new HashMap<>();
         try {
             rolesServices.save(roles);
-            return ResponseEntity.ok(HttpStatus.CREATED);
+            response.put("message", "Rol creado correctamente");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateRole(String id, Roles roles){
+    public ResponseEntity<Map<String,String>> updateRole(Long id, RolRequest roles){
+         Map<String,String> response = new HashMap<>();
         try {
-            rolesServices.update(roles,id);
-            return ResponseEntity.ok(HttpStatus.OK);
+            rolesServices.update(roles, id);
+            response.put("message", "Rol actualizado correctamente");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteRole(String id){
+    public ResponseEntity<Map<String,String>> deleteRole(Long id){
+         Map<String,String> response = new HashMap<>();
         try {
             rolesServices.delete(id);
-            return ResponseEntity.ok(HttpStatus.OK);
+            response.put("message", "Rol eliminado correctamente");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
 }

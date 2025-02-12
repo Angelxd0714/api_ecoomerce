@@ -17,5 +17,5 @@ public interface RepositoryCar extends CrudRepository<Car,Long> {
     List<Car> findAllByUserId(Users userId);
 
     List<Car> findAll();
-    void updateCarByUserId(Users userId, LocalDateTime updatedAt,Product[] productId);
+
 }

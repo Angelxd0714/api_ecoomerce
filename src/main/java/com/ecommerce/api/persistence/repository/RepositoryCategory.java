@@ -18,8 +18,8 @@ public interface RepositoryCategory extends CrudRepository<Category,Long> {
         @Modifying
         @Transactional
         @Query("UPDATE categories c SET c.name = :categoryName WHERE c.id = :categoryId")
-        void updateCategory(@Param("categoryId") String categoryId, @Param("categoryName") String categoryName);
+        void updateCategory(@Param("categoryId") Long categoryId, @Param("categoryName") String categoryName);
 
-
+        List<Category> findAll();
         List<Category> findCategoriesByName(String name);
 }

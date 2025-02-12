@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.ecommerce.api.persistence.entities.Payments;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Repository
 public interface RepositoryPayment extends CrudRepository<Payments,Long> {
@@ -16,6 +17,8 @@ public interface RepositoryPayment extends CrudRepository<Payments,Long> {
     Payments findByTransactionId(String transactionId);
     Payments findByOrderId(Orders orderId);
     Payments findByPaymentDate(LocalDate paymenDateAdd);
-    Iterable<Payments> findByUserId(Users userId);
+    List<Payments> findByUserId(Users userId);
+    List<Payments> findAll();
+
 
 }

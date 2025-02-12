@@ -1,5 +1,7 @@
 package com.ecommerce.api.controllers;
 
+import com.ecommerce.api.dto.request.OrdersRequest;
+import com.ecommerce.api.dto.response.OrdersDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,8 @@ import com.ecommerce.api.persistence.entities.Orders;
 
 import com.ecommerce.api.services.OrdersServices;
 import java.time.*;
+import java.util.HashMap;
+
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api/order")
@@ -25,70 +29,101 @@ public class ControllerOrder {
     @Autowired
     private OrdersServices serviceOrder;
     @GetMapping("/all")
-    public ResponseEntity<?> getOrders(){
+    public ResponseEntity<Map<String,Object>> getOrders(){
+        Map<String,Object> response = new HashMap<>();
         try {
-            return ResponseEntity.ok(serviceOrder.findAll());
+            List<OrdersDTO> orders = serviceOrder.findAll();
+            response.put("orders", orders);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
     @GetMapping("/orderGetOne/{id}")
-    public ResponseEntity<?> getOrderById(@PathVariable String id){
+    public ResponseEntity<Map<String,Object>> getOrderById(@PathVariable Long id){
+        Map<String,Object> response = new HashMap<>();
         try {
-            return ResponseEntity.ok(serviceOrder.findById(id));
+            OrdersDTO order = serviceOrder.findById(id);
+            response.put("order", order);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
     @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getOrderByUserId(@PathVariable List<String> userId){
+    public ResponseEntity<Map<String,Object>> getOrderByUserId(@PathVariable Long userId){
+        Map<String,Object> response = new HashMap<>();
         try {
-            return ResponseEntity.ok(serviceOrder.findByUserId(userId));
+            List<OrdersDTO> orders = serviceOrder.findByUserId(userId);
+            response.put("orders", orders);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
     @GetMapping("/status/{status}")
-    public ResponseEntity<?> getOrderByStatus(@PathVariable  List<String> status){
+    public ResponseEntity<Map<String,Object>> getOrderByStatus(@PathVariable  String status){
+            Map<String,Object> response = new HashMap<>();
         try {
-            return ResponseEntity.ok(serviceOrder.findByStatus(status));
+            List<OrdersDTO> orders = serviceOrder.findByStatus(status);
+            response.put("orders", orders);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
+
     }
     @GetMapping("/date/{date}")
-    public ResponseEntity<?> getOrderByDate(@PathVariable  @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") List<LocalDateTime> date){
+    public ResponseEntity<Map<String,Object>> getOrderByDate(@PathVariable  @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") List<LocalDateTime> date){
+            Map<String,Object> response = new HashMap<>();
         try {
-            return ResponseEntity.ok(serviceOrder.findByOrderDate(date));
+            List<OrdersDTO> orders = serviceOrder.findByOrderDate(date);
+            response.put("orders", orders);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateOrder(@PathVariable String id,@RequestBody Orders orders){
+    public ResponseEntity<Map<String,String>> updateOrder(@PathVariable String id,@RequestBody OrdersRequest orders){
+        Map<String,String> response = new HashMap<>();
         try {
-            serviceOrder.update(orders, Long.valueOf(id));
-            return ResponseEntity.ok(HttpStatus.OK);
+            serviceOrder.update(orders, Long.parseLong(id));
+            response.put("message", "Pedido actualizado correctamente");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteOrder(@PathVariable String id){
+    public ResponseEntity<Map<String,String>> deleteOrder(@PathVariable Long id){
+        Map<String,String> response = new HashMap<>();
         try {
             serviceOrder.delete(id);
-            return ResponseEntity.ok(HttpStatus.OK);
+            response.put("message", "Pedido eliminado correctamente");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
     @PostMapping("/create")
-    public ResponseEntity<?> createOrder(@RequestBody Orders orders){
+    public ResponseEntity<Map<String,String>> createOrder(@RequestBody OrdersRequest orders){
+         Map<String,String> response = new HashMap<>();
+
         try {
             serviceOrder.save(orders);
-            return ResponseEntity.ok(HttpStatus.CREATED);
+            response.put("message", "Pedido creado correctamente");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
 }

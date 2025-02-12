@@ -101,7 +101,7 @@ public class OrdersServices implements CrudOrder {
     }
 
     @Override
-    public List<OrdersDTO> findByUserId(List<Long> userId) {
+    public List<OrdersDTO> findByUserId( Long userId) {
 
         List<OrdersDTO> ordersDTOS = repositoryOrder.findByUserId(userId).stream().map(order -> OrdersDTO.builder()
                 .id(order.getId())

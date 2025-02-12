@@ -1,5 +1,6 @@
 package com.ecommerce.api.controllers;
 
+import com.ecommerce.api.dto.request.CarRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,9 @@ import com.ecommerce.api.persistence.entities.Car;
 import com.ecommerce.api.persistence.entities.Users;
 import com.ecommerce.api.services.CarServices;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api/cart")
@@ -25,54 +29,72 @@ public class ControllerCar {
     private CarServices carServices;
 
     @GetMapping("/all")
-    public ResponseEntity<?> getAllCar(){
-        try {
-            return ResponseEntity.ok(carServices.findAll());
+    public ResponseEntity<Map<String,Object>> getAllCar(){
+         Map<String,Object> response = new HashMap<>();
+         try {
+            response.put("cars", carServices.findAll());
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
     @GetMapping("/{id}")
-    public ResponseEntity<?> getCarById(@PathVariable String id){
+    public ResponseEntity<Map<String,Object>> getCarById(@PathVariable Long id){
+        Map<String,Object> response = new HashMap<>();
         try {
-            return ResponseEntity.ok(carServices.findById(id));
+            response.put("car", carServices.findById(id));
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
     @PostMapping("/save")
-    public ResponseEntity<?> saveCar(@RequestBody Car car){
+    public ResponseEntity<Map<String,String>> saveCar(@RequestBody CarRequest car){
+        Map<String,String> response = new HashMap<>();
         try {
             carServices.save(car);
-            return ResponseEntity.ok(HttpStatus.CREATED);
+            response.put("message", "Carrito creado correctamente");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteCar(@PathVariable String id){
+    public ResponseEntity<Map<String,String>> deleteCar(@PathVariable Long id){
+        Map<String,String> response = new HashMap<>();
         try {
             carServices.deleteById(id);
-            return ResponseEntity.ok(HttpStatus.OK);
+            response.put("message", "Carrito eliminado correctamente");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
     @GetMapping("/carUser/{userId}")
-    public ResponseEntity<?> getCarByUserId(@RequestBody Users userId){
+    public ResponseEntity<Map<String,Object>> getCarByUserId(@RequestBody Users userId){
+         Map<String,Object> response = new HashMap<>();
         try {
-            return ResponseEntity.ok(carServices.findByUserId(userId));
+            response.put("car", carServices.findByUserId(userId));
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateCar(@PathVariable String id, @RequestBody Car car){
+    public ResponseEntity<Map<String,String>> updateCar(@PathVariable Long id, @RequestBody CarRequest car){
+         Map<String,String> response = new HashMap<>();
         try {
             carServices.update(id, car);
-            return ResponseEntity.ok(HttpStatus.OK);
+            response.put("message", "Carrito actualizado correctamente");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
         }
     }
 }

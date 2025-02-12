@@ -11,7 +11,7 @@ public interface CrudOrder {
     void update(OrdersRequest orders, Long id);
     void delete(Long id);
     List<OrdersDTO> findAll();
-    List<OrdersDTO> findByUserId(List<Long> userId);
+    List<OrdersDTO> findByUserId(Long userId);
     List<OrdersDTO> findByStatus(String status);
     List<OrdersDTO> findByOrderDate(List<LocalDateTime> orderDate);
 }

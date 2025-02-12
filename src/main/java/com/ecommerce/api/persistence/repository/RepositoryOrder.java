@@ -24,7 +24,7 @@ public interface RepositoryOrder extends CrudRepository<Orders,Long> {
         List<Orders> findByStatus(@Param("statuses") String orderStatus);
 
         @Query("SELECT o FROM orders o WHERE o.user IN :userIds")
-        List<Orders> findByUserId(@Param("userIds") List<Long> userId);
+        List<Orders> findByUserId(@Param("userIds") Long userId);
 
         @Modifying
         @Transactional

@@ -1,16 +1,22 @@
 package com.ecommerce.api.persistence.interfaces;
 
+import com.ecommerce.api.dto.request.CategoriesRequest;
+import com.ecommerce.api.dto.response.CategoryDTO;
 import com.ecommerce.api.persistence.entities.Category;
+
+import java.util.List;
 
 public interface CrudCategory {
 
-    void save(Category category);
+    void save(CategoriesRequest category);
 
-    void delete(String id);
+    void delete(Long id);
 
-    Category getOne(String id);
+    CategoryDTO getOne(Long id);
 
-    Iterable<Category> getAll();
+    List<CategoryDTO> getAll();
 
-    void update(Category category,String id);
+    void update(CategoriesRequest category,Long id);
+
+    List<CategoryDTO> getOneByName(String name);
 }
