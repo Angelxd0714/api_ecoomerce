@@ -12,10 +12,10 @@ import java.util.Set;
 @Setter
 public class OrdersRequest {
     private Long id;
-    private UserRequest userId;
+    private Long userId;
     private LocalDate  orderDate;
    private String status;
     private Double totalAmount;
-   private Set<ProductRequest> productRequest;
+   private Set<Long> productRequest;
 
 }

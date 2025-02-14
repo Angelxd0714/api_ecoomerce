@@ -8,8 +8,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import java.util.Set;
-
-@Entity(name = "orders")
+@Entity
+@Table(name = "orders")
 @Getter
 @Setter
 @NoArgsConstructor

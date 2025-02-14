@@ -2,6 +2,7 @@ package com.ecommerce.api.controllers;
 
 import com.ecommerce.api.dto.request.OrdersRequest;
 import com.ecommerce.api.dto.response.OrdersDTO;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -78,7 +79,8 @@ public class ControllerOrder {
 
     }
     @GetMapping("/date/{date}")
-    public ResponseEntity<Map<String,Object>> getOrderByDate(@PathVariable  @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") List<LocalDateTime> date){
+    public ResponseEntity<Map<String,Object>> getOrderByDate(@PathVariable
+                                                                 @JsonFormat(pattern = "yyyy-MM-dd") LocalDate date){
             Map<String,Object> response = new HashMap<>();
         try {
             List<OrdersDTO> orders = serviceOrder.findByOrderDate(date);

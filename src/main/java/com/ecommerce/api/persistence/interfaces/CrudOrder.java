@@ -13,5 +13,5 @@ public interface CrudOrder {
     List<OrdersDTO> findAll();
     List<OrdersDTO> findByUserId(Long userId);
     List<OrdersDTO> findByStatus(String status);
-    List<OrdersDTO> findByOrderDate(List<LocalDateTime> orderDate);
+    List<OrdersDTO> findByOrderDate(LocalDate orderDate);
 }

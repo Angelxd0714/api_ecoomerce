@@ -52,7 +52,7 @@ public class ControllerPayment {
             OrdersRequest  response = new OrdersRequest();
             response.setOrderDate(LocalDate.ofEpochDay(orders.getCreated()));
             response.setStatus(orders.getStatus());
-            response.setProductRequest((Set<ProductRequest>) orders.getProductObject());
+            response.setProductRequest(order.getProductRequest());
             response.setTotalAmount(Double.valueOf(orders.getAmountTotal()));
 
 

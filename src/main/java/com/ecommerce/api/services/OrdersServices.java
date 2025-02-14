@@ -5,6 +5,7 @@ import com.ecommerce.api.dto.request.ProductRequest;
 import com.ecommerce.api.dto.request.UserRequest;
 import com.ecommerce.api.dto.response.OrdersDTO;
 import com.ecommerce.api.dto.response.ProductDTO;
+import com.ecommerce.api.persistence.entities.Product;
 import com.ecommerce.api.persistence.entities.Users;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,16 +27,18 @@ public class OrdersServices implements CrudOrder {
 
     @Override
     public void save(OrdersRequest order) {
+        Set<Product> products =
+                order.getProductRequest().stream().map(
+                        product -> Product.builder()
+                                .id( product)
+                                .build()
+                ).collect(Collectors.toSet());
         Orders orders = Orders.builder()
-                .user(Users.builder().id(order.getUserId().getId()).build())
+                .user(Users.builder().id(order.getUserId()).build())
                 .orderDate(order.getOrderDate())
                 .status(order.getStatus())
-                        .products(order.getProductRequest().stream().map(product -> com.ecommerce.api.persistence.entities.Product.builder()
-                                .id(Long.parseLong(product.getId()))
-                                .name(product.getName())
-                                .description(product.getDescription())
-                                .price(product.getPrice())
-                                .stock(product.getStock())
+                        .products(products.stream().map(product -> Product.builder()
+                                .id(product.getId())
                                 .build()).collect(Collectors.toSet()))
                 .totalAmount(BigDecimal.valueOf(order.getTotalAmount()))
                 .build();
@@ -151,8 +154,8 @@ public class OrdersServices implements CrudOrder {
     }
 
     @Override
-    public List<OrdersDTO> findByOrderDate(List<LocalDateTime> orderDate) {
-         return repositoryOrder.findByOrderDate(orderDate.get(0)).stream().map(order -> OrdersDTO.builder()
+    public List<OrdersDTO> findByOrderDate(LocalDate orderDate) {
+        return repositoryOrder.findByOrderDate(orderDate).stream().map(order -> OrdersDTO.builder()
                 .id(order.getId())
                 .userId(order.getUser().getUserId())
                 .orderDate(order.getOrderDate())
