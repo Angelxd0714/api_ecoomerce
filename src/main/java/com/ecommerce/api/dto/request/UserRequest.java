@@ -18,6 +18,7 @@ public class UserRequest {
     private Long userId;
     private String email;
     private String fullName;
+    private String password;
     private String phone;
     private boolean isEnabled;
     private boolean accountNoExpired;

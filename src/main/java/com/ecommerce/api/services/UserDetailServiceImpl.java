@@ -4,7 +4,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.ecommerce.api.dto.request.UserRequest;
+import com.ecommerce.api.dto.response.UsersDTO;
+import com.ecommerce.api.persistence.interfaces.CrudUsers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,7 +33,7 @@ import com.ecommerce.api.persistence.repository.RepositoryUsers;
 import com.ecommerce.api.utils.JWTutils;
 
 @Service
-public class UserDetailServiceImpl implements UserDetailsService {
+public class UserDetailServiceImpl implements UserDetailsService, CrudUsers {
     @Autowired
     private RepositoryUsers repositoryUsers;
     @Autowired
@@ -61,13 +65,14 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
         String username = createRoleRequest.username();
         String password = createRoleRequest.password();
+        String email = createRoleRequest.email();
         List<String> rolesRequest = createRoleRequest.roles().rolesName();
         Set<Roles> roleEntityList = new HashSet<>(roleRepository.findRolesByName(rolesRequest));
         if (roleEntityList.isEmpty()) {
             throw new IllegalArgumentException("The roles specified does not exist.");
         }
      
-        Users userEntity = Users.builder().username(username).password(passwordEncoder.encode(password))
+        Users userEntity = Users.builder().username(username).email(email).password(passwordEncoder.encode(password))
                 .roles(roleEntityList).isEnabled(true).accountNoLocked(true).accountNoExpired(true)
                 .credentialNoExpired(true).build();
 
@@ -104,7 +109,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
     public Authentication authenticate(String username, String password) {
         UserDetails userDetails = this.loadUserByUsername(username);
-        System.out.println(userDetails);
+
         if (userDetails == null) {
             throw new BadCredentialsException("Invalid username or password");
         }
@@ -115,4 +120,112 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
         return new UsernamePasswordAuthenticationToken(username, password, userDetails.getAuthorities());
     }
+
+
+
+    @Override
+    public UsersDTO getUserById(Long id) {
+        UsersDTO usersDTO = repositoryUsers.findById(id).map(user -> UsersDTO.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .userId(user.getUserId())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .phone(user.getPhone())
+                .isEnabled(user.isEnabled())
+                .accountNoExpired(user.isAccountNoExpired())
+                .accountNoLocked(user.isAccountNoLocked())
+                .address(user.getAddress())
+                .credentialNoExpired(user.isCredentialNoExpired())
+                .build()).orElse(null);
+        if (usersDTO == null) {
+            throw new IllegalArgumentException("El usuario no existe");
+        }
+        return usersDTO;
+
+    }
+
+    @Override
+    public UsersDTO getUserByEmail(String email) {
+
+        return repositoryUsers.findByEmail(email).map(user -> UsersDTO.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .userId(user.getUserId())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .phone(user.getPhone())
+                .isEnabled(user.isEnabled())
+                .accountNoExpired(user.isAccountNoExpired())
+                .accountNoLocked(user.isAccountNoLocked())
+                .address(user.getAddress())
+                .credentialNoExpired(user.isCredentialNoExpired())
+                .build()).orElse(null);
+
+
+    }
+
+    @Override
+    public UsersDTO getUserIdent(Long userId) {
+        return repositoryUsers.findByUserId(userId).map(user -> UsersDTO.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .userId(user.getUserId())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .phone(user.getPhone())
+                .isEnabled(user.isEnabled())
+                .accountNoExpired(user.isAccountNoExpired())
+                .accountNoLocked(user.isAccountNoLocked())
+                .address(user.getAddress())
+                .credentialNoExpired(user.isCredentialNoExpired())
+                .build()).orElse(null);
+    }
+
+    @Override
+    public void updateUser(UserRequest user, Long id) {
+        String password = passwordEncoder.encode(user.getPassword());
+
+        Set<Roles> rolesSet=  user.getRoles().stream().map(role -> Roles.builder()
+                .name(role.getName()).build()).collect(Collectors.toSet());
+        repositoryUsers.findById(id).ifPresentOrElse(x -> {
+            x.setFullName(user.getFullName());
+            x.setEmail(user.getEmail());
+            x.setPassword(password);
+            x.setRoles(rolesSet);
+            x.setUserId(user.getUserId());
+            x.setCreatedAt(user.getCreatedAt());
+            x.setUpdatedAt(user.getUpdatedAt());
+            x.setPhone(x.getPhone());
+            x.setAddress(user.getAddress());
+            repositoryUsers.save(x);
+        }, null);
+    }
+
+    @Override
+    public void deleteUser(Long id) {
+        repositoryUsers.deleteById(id);
+    }
+
+    @Override
+    public List<UsersDTO> getAllUsers() {
+
+
+        return repositoryUsers.findAll()
+                .stream()
+                .map(user -> UsersDTO.builder()
+                        .id(user.getId())
+                        .username(user.getUsername())
+                        .userId(user.getUserId())
+                        .email(user.getEmail())
+                        .fullName(user.getFullName())
+                        .phone(user.getPhone())
+                        .isEnabled(user.isEnabled())
+                        .accountNoExpired(user.isAccountNoExpired())
+                        .accountNoLocked(user.isAccountNoLocked())
+                        .address(user.getAddress())
+                        .credentialNoExpired(user.isCredentialNoExpired())
+                        .build()).toList();
+    }
+
 }
