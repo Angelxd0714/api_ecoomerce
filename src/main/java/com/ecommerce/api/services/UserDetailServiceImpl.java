@@ -1,12 +1,12 @@
 package com.ecommerce.api.services;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.ecommerce.api.dto.request.UserRequest;
+import com.ecommerce.api.dto.response.PermissionDTO;
+import com.ecommerce.api.dto.response.RolesDTO;
 import com.ecommerce.api.dto.response.UsersDTO;
 import com.ecommerce.api.persistence.interfaces.CrudUsers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -147,6 +147,12 @@ public class UserDetailServiceImpl implements UserDetailsService, CrudUsers {
 
     @Override
     public UsersDTO getUserByEmail(String email) {
+        if(email==null){
+            throw new IllegalArgumentException("El email no puede ser nulo");
+        }
+        if(email.isEmpty()){
+            throw new IllegalArgumentException("El email no puede ser vacio");
+        }
 
         return repositoryUsers.findByEmail(email).map(user -> UsersDTO.builder()
                 .id(user.getId())
@@ -184,22 +190,42 @@ public class UserDetailServiceImpl implements UserDetailsService, CrudUsers {
 
     @Override
     public void updateUser(UserRequest user, Long id) {
-        String password = passwordEncoder.encode(user.getPassword());
+        Users existingUser = repositoryUsers.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + id));
 
-        Set<Roles> rolesSet=  user.getRoles().stream().map(role -> Roles.builder()
-                .name(role.getName()).build()).collect(Collectors.toSet());
-        repositoryUsers.findById(id).ifPresentOrElse(x -> {
-            x.setFullName(user.getFullName());
-            x.setEmail(user.getEmail());
-            x.setPassword(password);
-            x.setRoles(rolesSet);
-            x.setUserId(user.getUserId());
-            x.setCreatedAt(user.getCreatedAt());
-            x.setUpdatedAt(user.getUpdatedAt());
-            x.setPhone(x.getPhone());
-            x.setAddress(user.getAddress());
-            repositoryUsers.save(x);
-        }, null);
+        // Actualizar campos básicos (como antes)
+        if (user.getFullName() != null) existingUser.setFullName(user.getFullName());
+        if (user.getEmail() != null) existingUser.setEmail(user.getEmail());
+        if (user.getPassword() != null) existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (user.getPhone() != null) existingUser.setPhone(user.getPhone());
+        if (user.getAddress() != null) existingUser.setAddress(user.getAddress());
+        if(user.getUserId() != null) existingUser.setUserId(user.getUserId());
+
+        // Actualizar roles (creándolos si no existen)
+        if (user.getRoles() != null && !user.getRoles().isEmpty()) {
+            Set<Roles> rolesSet = user.getRoles().stream()
+                    .map(roleRequest -> {
+                        // Buscar el rol por nombre
+                        Optional<Roles> existingRole = roleRepository.findByName(roleRequest.getName());
+
+                        // Si existe, retornarlo
+                        if (existingRole.isPresent()) {
+                            return existingRole.get();
+                        } else {
+                            // Si no existe, crear y guardar el nuevo rol
+                            Roles newRole = Roles.builder()
+                                    .name(roleRequest.getName())
+                                    .build();
+                            return roleRepository.save(newRole); // Guarda el rol automáticamente
+                        }
+                    })
+                    .collect(Collectors.toSet());
+
+            existingUser.setRoles(rolesSet);
+        }
+
+
+        repositoryUsers.save(existingUser); // Guardar el usuario actualizado
     }
 
     @Override
@@ -211,11 +237,14 @@ public class UserDetailServiceImpl implements UserDetailsService, CrudUsers {
     public List<UsersDTO> getAllUsers() {
 
 
+
+
         return repositoryUsers.findAll()
                 .stream()
                 .map(user -> UsersDTO.builder()
                         .id(user.getId())
                         .username(user.getUsername())
+                        .password(user.getPassword())
                         .userId(user.getUserId())
                         .email(user.getEmail())
                         .fullName(user.getFullName())
@@ -224,6 +253,19 @@ public class UserDetailServiceImpl implements UserDetailsService, CrudUsers {
                         .accountNoExpired(user.isAccountNoExpired())
                         .accountNoLocked(user.isAccountNoLocked())
                         .address(user.getAddress())
+                        .rolesDTOS(
+                                 user.getRoles().stream().map(role -> RolesDTO.builder()
+                                .id(role.getId())
+                                .name(role.getName())
+                                .permissions(
+                                        role.getPermissions().stream().map(permission -> PermissionDTO.builder()
+                                                .id(permission.getId())
+                                                .name(permission.getName())
+                                                .build()).collect(Collectors.toSet())
+                                )
+                                .build()).collect(Collectors.toSet())
+                        )
+
                         .credentialNoExpired(user.isCredentialNoExpired())
                         .build()).toList();
     }

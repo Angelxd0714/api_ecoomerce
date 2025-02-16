@@ -26,10 +26,10 @@ public class UserRequest {
     private String address;
     private boolean credentialNoExpired;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
     private LocalDateTime createdAt;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
     private LocalDateTime updatedAt;
 
     private Set<RolRequest> roles = new HashSet<>();

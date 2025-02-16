@@ -48,10 +48,10 @@ public class Users {
     @Column(name = "credential_no_expired")
     private boolean credentialNoExpired;
     @Column(name = "created_at")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
     private LocalDateTime createdAt;
     @Column(name = "updated_at")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
     private LocalDateTime updatedAt;
     @Column(name = "roles")
     @ManyToMany(targetEntity = Roles.class)

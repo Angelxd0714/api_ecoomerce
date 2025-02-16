@@ -67,6 +67,16 @@ public class ControllerUser {
             return ResponseEntity.badRequest().body(Map.of("error", "Error al actualizar el usuario", "detalle", e.getMessage()));
         }
     }
+    @GetMapping("/getUserId/{userId}")
+    public ResponseEntity<Map<String,Object>> getUserId(@PathVariable Long userId){
+        Map<String,Object> response = new HashMap<>(Map.of("message", "Listado de usuarios exitoso."));
+        try {
+            response.put("users", userDetailService.getUserIdent(userId));
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Error al listar los usuarios", "detalle", e.getMessage()));
+        }
+    }
 
     
 }
