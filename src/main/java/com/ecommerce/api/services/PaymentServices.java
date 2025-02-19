@@ -21,9 +21,12 @@ import java.util.stream.Stream;
 public class PaymentServices implements CrudPayments {
     @Autowired
     private RepositoryPayment repositoryPayment;
+    @Autowired
+    private ServiceMercadoPago serviceMercadoPago;
 
     @Override
     public void createPayment(PaymentRequest payment) {
+
 
         Payments payment1 = Payments.builder()
                 .id(payment.getId())
@@ -35,6 +38,7 @@ public class PaymentServices implements CrudPayments {
                 .transactionId(payment.getTransactionId())
                 .createdAt(payment.getCreatedAt())
                 .build();
+
 
         repositoryPayment.save(payment1);
     }

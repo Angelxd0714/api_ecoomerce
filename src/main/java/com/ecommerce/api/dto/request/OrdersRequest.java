@@ -2,6 +2,7 @@ package com.ecommerce.api.dto.request;
 
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -15,7 +16,7 @@ public class OrdersRequest {
     private Long userId;
     private LocalDate  orderDate;
    private String status;
-    private Double totalAmount;
+    private BigDecimal totalAmount;
    private Set<Long> productRequest;
 
 }

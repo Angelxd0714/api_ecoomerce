@@ -2,11 +2,9 @@ package com.ecommerce.api.controllers;
 
 import com.ecommerce.api.dto.request.OrdersRequest;
 import com.ecommerce.api.dto.request.PaymentRequest;
-import com.ecommerce.api.dto.request.ProductRequest;
 import com.ecommerce.api.dto.request.UserRequest;
-import com.stripe.model.climate.Order;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,12 +22,9 @@ import java.util.*;
 import java.util.Collections;
 import java.util.HashMap;
 
-import com.ecommerce.api.persistence.entities.Orders;
-import com.ecommerce.api.persistence.entities.Payments;
-import com.ecommerce.api.persistence.entities.Users;
 import com.ecommerce.api.services.PaymentServices;
-import com.ecommerce.api.services.ServiceStripe;
-import com.stripe.model.PaymentIntent;
+import com.ecommerce.api.services.ServiceMercadoPago;
+
 
 @CrossOrigin("*")
 @RestController
@@ -37,48 +32,12 @@ import com.stripe.model.PaymentIntent;
 public class ControllerPayment {
     @Autowired
     private PaymentServices paymentServices;
-    @Autowired
-    private ServiceStripe serviceStripe;
+
 
     @PostMapping("/create-payment-intent")
-    public ResponseEntity<Map<String, String>> createPayment(@RequestBody Order orders, @RequestParam("userId") UserRequest user,
+    public ResponseEntity<Map<String, String>> createPayment(@RequestParam("userId") UserRequest user,
                                                              @RequestParam("orders") OrdersRequest order) {
-        if (Objects.equals(orders.getStatus(), "CANCELED")) {
-            return  ResponseEntity.badRequest().body(Collections.singletonMap("error", "Payment canceled"));
-        }
-        try {
-            PaymentIntent paymentIntent = serviceStripe.createPaymentIntent(orders);
-      ;
-            OrdersRequest  response = new OrdersRequest();
-            response.setOrderDate(LocalDate.ofEpochDay(orders.getCreated()));
-            response.setStatus(orders.getStatus());
-            response.setProductRequest(order.getProductRequest());
-            response.setTotalAmount(Double.valueOf(orders.getAmountTotal()));
 
-
-
-
-            PaymentRequest paymentRequest = new PaymentRequest();
-            paymentRequest.setPaymentAmount(orders.getAmountTotal());
-            paymentRequest.setPaymentCurrency(paymentIntent.getCurrency());
-            paymentRequest.setPaymentStatus(paymentIntent.getStatus());
-            paymentRequest.setCreatedAt(LocalDate.now());
-            paymentRequest.setPaymentMethod(paymentIntent.getPaymentMethodTypes().get(0));
-            paymentRequest.setUserId(user);
-            paymentRequest.setOrderId(order);
-
-            paymentServices.createPayment(paymentRequest);
-            Map<String, String> responseMap = new HashMap<>();
-            responseMap.put("clientSecret", paymentIntent.getClientSecret());
-            responseMap.put("paymentIntentId", paymentIntent.getId());
-            return ResponseEntity.ok(responseMap);
-        } catch (Exception e) {
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Error al crear el pago");
-            errorResponse.put("detalle", e.getMessage());
-            return ResponseEntity.badRequest().body(errorResponse);
-
-        }
 
     }
     @GetMapping("/get-payment")

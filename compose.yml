@@ -1,4 +1,34 @@
 services:
+  redis:
+    container_name: redis_ecommerce
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: secret
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   mysql:
     container_name: mysql_ecommerce
     image: mysql:latest
@@ -16,7 +46,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
+volumes:
+  rabbitmq_data:
+    driver: local
 networks:
   app-network:
     driver: bridge
