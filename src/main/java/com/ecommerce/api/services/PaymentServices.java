@@ -81,7 +81,7 @@ public class PaymentServices implements CrudPayments {
     public void updatePayment(PaymentRequest payment, Long id) {
 
         Users user = Users.builder()
-                .id(payment.getUserId().getUserId())
+                .id(payment.getUserId())
                 .build();
 
         repositoryPayment.findById(id).ifPresent(existingPayment -> {

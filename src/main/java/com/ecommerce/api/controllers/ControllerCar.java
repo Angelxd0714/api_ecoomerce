@@ -4,15 +4,7 @@ import com.ecommerce.api.dto.request.CarRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.ecommerce.api.persistence.entities.Car;
 import com.ecommerce.api.persistence.entities.Users;
@@ -50,11 +42,34 @@ public class ControllerCar {
             return ResponseEntity.badRequest().body(response);
         }
     }
-    @PostMapping("/save")
-    public ResponseEntity<Map<String,String>> saveCar(@RequestBody CarRequest car){
+    @GetMapping("/cartUser/{userId}")
+    public ResponseEntity<Map<String,Object>> getCarByUserId(@PathVariable Long userId){
+        Map<String,Object> response = new HashMap<>();
+        try {
+            response.put("car", carServices.getCart(userId));
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+    @DeleteMapping("/clear/{userId}")
+    public ResponseEntity<Map<String,String>> clearCart(@PathVariable Long userId){
         Map<String,String> response = new HashMap<>();
         try {
-            carServices.save(car);
+            carServices.clearCart(userId);
+            response.put("message", "Carrito eliminado correctamente");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+    @PostMapping("/save")
+    public ResponseEntity<Map<String,String>> saveCar(@RequestBody CarRequest car, @RequestParam  Long userId){
+        Map<String,String> response = new HashMap<>();
+        try {
+            carServices.addToCart(userId, car);
             response.put("message", "Carrito creado correctamente");
             return ResponseEntity.ok(response);
         } catch (Exception e) {

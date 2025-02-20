@@ -11,8 +11,8 @@ import java.time.LocalDate;
 @Setter
 public class PaymentRequest {
     private Long id;
-    private OrdersRequest orderId;
-    private UserRequest userId;
+    private Long orderId;
+    private Long userId;
     private String paymentMethod;
     private Long paymentAmount;
     private String paymentStatus;

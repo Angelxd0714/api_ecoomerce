@@ -5,6 +5,8 @@ import com.ecommerce.api.dto.request.ProductRequest;
 import com.ecommerce.api.dto.response.CarDTO;
 import com.ecommerce.api.persistence.entities.Product;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.ecommerce.api.persistence.entities.Car;
@@ -14,11 +16,42 @@ import com.ecommerce.api.persistence.repository.RepositoryCar;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 public class CarServices implements CrudCar {
     @Autowired
     private RepositoryCar repositoryCar;
+
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
+    public void addToCart(Long userId, CarRequest productData) {
+        String key = "cart:" + userId;
+        redisTemplate.opsForList().rightPush(key, productData);
+        redisTemplate.expire(key, 1, TimeUnit.HOURS); // Expira en 1 hora
+    }
+
+    public CarDTO getCart(Long userId) {
+        String key = "cart:" + userId;
+        List<Object> cartItems = redisTemplate.opsForList().range(key, 0, -1);
+        List<Long[]> productListId = cartItems.stream().map(item -> ((CarDTO) item).getProductId()).toList().stream().toList();
+          if (!cartItems.isEmpty()) {
+                CarRequest carRequest = (CarRequest) cartItems.get(0);
+                return CarDTO.builder()
+                        .userId(carRequest.getUserId())
+                        .productId(productListId.toArray(new Long[0])).build();
+            } else {
+                return null;
+            }
+    }
+
+
+    public void clearCart(Long userId) {
+        String key = "cart:" + userId;
+        redisTemplate.delete(key);
+    }
     @Override
     public void save(CarRequest car) {
 
@@ -35,16 +68,15 @@ public class CarServices implements CrudCar {
 
     @Override
     public List<CarDTO> findAll() {
+
+
+
         return repositoryCar.findAll().stream().map(car -> CarDTO.builder()
                 .userId(car.getUserId().getId())
                 .productId(
-                        Arrays.stream(car.getProductId()).map(product -> ProductRequest.builder()
-                                .id(String.valueOf(product.getId()))
-                                .name(product.getName())
-                                .description(product.getDescription())
-                                .price(product.getPrice())
-                                .stock(product.getStock())
-                                .build()).toArray(ProductRequest[]::new)
+                        Arrays.stream(car.getProductId())
+                                .map(Product::getId)
+                                .toArray(Long[]::new)
                 )
                 .createdAt(car.getCreatedAt())
                 .updatedAt(car.getUpdatedAt())
@@ -64,13 +96,12 @@ public class CarServices implements CrudCar {
 
         return (CarDTO) CarDTO.builder()
                 .userId(car.getUserId().getId())
-                .productId(Arrays.stream(car.getProductId()).map(product -> ProductRequest.builder()
-                        .id(String.valueOf(product.getId()))
-                        .name(product.getName())
-                        .description(product.getDescription())
-                        .price(product.getPrice())
-                        .stock(product.getStock())
-                        .build()).toArray(ProductRequest[]::new)).build();
+                .productId( Arrays.stream(car.getProductId())
+                        .map(Product::getId)
+                        .toArray(Long[]::new))
+                .createdAt(car.getCreatedAt())
+                .updatedAt(car.getUpdatedAt())
+                .build();
     }
 
     @Override
@@ -88,13 +119,9 @@ public class CarServices implements CrudCar {
         return repositoryCar.findAllByUserId(userId).stream().map(car -> CarDTO.builder()
                  .userId(car.getUserId().getId())
                 .productId(
-                        Arrays.stream(car.getProductId()).map(product -> ProductRequest.builder()
-                                .id(String.valueOf(product.getId()))
-                                .name(product.getName())
-                                .description(product.getDescription())
-                                .price(product.getPrice())
-                                .stock(product.getStock())
-                                .build()).toArray(ProductRequest[]::new)
+                        Arrays.stream(car.getProductId())
+                                .map(Product::getId)
+                                .toArray(Long[]::new)
                 )
                 .createdAt(car.getCreatedAt())
                 .updatedAt(car.getUpdatedAt())

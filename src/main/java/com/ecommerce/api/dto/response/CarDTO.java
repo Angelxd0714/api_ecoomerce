@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 public class CarDTO {
     private Long userId;
-    private ProductRequest[] productId;
+    private Long[] productId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

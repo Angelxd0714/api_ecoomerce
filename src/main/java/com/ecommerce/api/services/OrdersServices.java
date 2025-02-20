@@ -40,7 +40,7 @@ public class OrdersServices implements CrudOrder {
                         .products(products.stream().map(product -> Product.builder()
                                 .id(product.getId())
                                 .build()).collect(Collectors.toSet()))
-                .totalAmount(BigDecimal.valueOf(order.getTotalAmount()))
+                .totalAmount(order.getTotalAmount())
                 .build();
 
         repositoryOrder.save(orders);
