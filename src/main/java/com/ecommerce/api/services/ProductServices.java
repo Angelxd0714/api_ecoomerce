@@ -6,12 +6,15 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 import java.util.List;
 
 import com.ecommerce.api.dto.request.ProductRequest;
+import com.ecommerce.api.dto.response.CarDTO;
 import com.ecommerce.api.dto.response.CategoryDTO;
 import com.ecommerce.api.dto.response.MarkersDTO;
 import com.ecommerce.api.dto.response.ProductDTO;
+import com.ecommerce.api.persistence.entities.Orders;
 import com.ecommerce.api.persistence.repository.RepositoryCategory;
 import com.ecommerce.api.persistence.repository.RepositoryMarkers;
 import com.ecommerce.api.utils.Utils;
@@ -315,6 +318,18 @@ public class ProductServices implements CrudProduct {
                 .createdAt(product.getCreatedAt())
                 .updatedAt(product.getUpdatedAt())
                 .build()).toList();
+
+    }
+    @Transactional
+    public void updateProduct(Long orderId){
+        Orders orders = Orders.builder()
+                .id(orderId)
+                .build();
+        List<Product> products = repositoryProduct.findAll().stream().filter(x->x.getOrder().equals(orders)).toList();
+        products.forEach(x->{
+            x.setStock(x.getStock()-1);
+            repositoryProduct.updateProductoPersonalize(x.getId(),x);
+        });
 
     }
     

@@ -34,10 +34,10 @@ public class ControllerPayment {
     private PaymentServices paymentServices;
 
 
-    @PostMapping("/create-payment-intent")
-    public ResponseEntity<Map<String, String>> createPayment(@RequestBody PaymentRequest paymentRequest) {
+    @PostMapping("/create-payment-intent/{userId}")
+    public ResponseEntity<Map<String, String>> createPayment(@PathVariable Long userId) {
         try {
-            paymentServices.createPayment(paymentRequest);
+            paymentServices.createPayment(userId);
             return ResponseEntity.ok(Collections.singletonMap("message", "Pago creado exitosamente."));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));

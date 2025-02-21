@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface CrudPayments {
-    void createPayment(PaymentRequest payment);
+    void createPayment(Long userId);
     List<PaymentsDTO> findAll();
     PaymentsDTO findById(Long id);
     void updatePayment(PaymentRequest payment, Long id);
@@ -22,4 +22,5 @@ public interface CrudPayments {
     List<PaymentsDTO> findByPaymentDate(LocalDate paymentDate);
     List<PaymentsDTO> findByOrderId(Long orderId);
     void deletePayment(Long id);
+    void savePayment(PaymentRequest paymentRequest);
 }

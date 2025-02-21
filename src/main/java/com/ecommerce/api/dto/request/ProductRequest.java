@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 public class ProductRequest {
-    private String id;
+    private Long id;
     private String name;
     private String description;
     private BigDecimal price;

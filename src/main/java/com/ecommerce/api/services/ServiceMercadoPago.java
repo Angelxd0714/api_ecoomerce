@@ -4,15 +4,22 @@ import java.math.BigDecimal;
 import java.util.Collections;
 
 import com.ecommerce.api.dto.request.OrdersRequest;
+import com.ecommerce.api.dto.request.PaymentRequest;
+import com.ecommerce.api.dto.request.UserRequest;
 import com.mercadopago.MercadoPagoConfig;
 
+import com.mercadopago.client.payment.PaymentClient;
+import com.mercadopago.client.payment.PaymentCreateRequest;
+import com.mercadopago.client.payment.PaymentPayerRequest;
 import com.mercadopago.client.preference.PreferenceClient;
 import com.mercadopago.client.preference.PreferenceItemRequest;
 import com.mercadopago.client.preference.PreferenceRequest;
 
+import com.mercadopago.resources.payment.Payment;
 import com.mercadopago.resources.preference.Preference;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.stereotype.Service;
@@ -27,25 +34,30 @@ public class ServiceMercadoPago {
     private String accessToken;
   @Value("${mercadopago.access-key}")
     private String accessKey;
-
-  public String createPaymentReference(OrdersRequest ordersRequest,
-                                       Integer quantity,String categoryId)  {
-    MercadoPagoConfig.setAccessToken(accessToken);
-    PreferenceItemRequest item = PreferenceItemRequest.builder()
-            .title("Compra")
-            .quantity(quantity)
-            .categoryId(categoryId)
-            .unitPrice(ordersRequest.getTotalAmount())
-            .build();
-    PreferenceRequest preferenceRequest = PreferenceRequest.builder()
-            .items(Collections.singletonList(item))
-            .build();
+  public Pair<Boolean,Long> processPayment(PaymentRequest paymentRequest, String email, BigDecimal amount) {
     try {
-      PreferenceClient client = new PreferenceClient();
-      Preference preference = client.create(preferenceRequest);
-      return preference.getId();
+      // Configurar el token antes de llamar a Mercado Pago
+      MercadoPagoConfig.setAccessToken(accessToken);
+
+      PaymentClient client = new PaymentClient();
+      PaymentCreateRequest request = PaymentCreateRequest.builder()
+              .transactionAmount(amount)
+              .description("Pago de orden " + paymentRequest.getOrderId())
+              .installments(1)
+              .paymentMethodId(paymentRequest.getPaymentMethod())
+              .payer(PaymentPayerRequest.builder().email(email).build())
+              .build();
+
+      Payment payment = client.create(request);
+
+      if ("approved".equals(payment.getStatus())) {
+        return Pair.of(true, payment.getId()); // Pago aprobado, devolver ID de transacción
+      } else {
+        return Pair.of(false, null); // Pago rechazado
+      }
     } catch (Exception e) {
-      throw new RuntimeException("Error en Mercado Pago: " + e.getMessage());
+      e.printStackTrace();
+      return Pair.of(false, null); // Error en el pago
     }
   }
   }

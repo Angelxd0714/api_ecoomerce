@@ -66,10 +66,10 @@ public class ControllerCar {
         }
     }
     @PostMapping("/save")
-    public ResponseEntity<Map<String,String>> saveCar(@RequestBody CarRequest car, @RequestParam  Long userId){
+    public ResponseEntity<Map<String,String>> saveCar(@RequestBody CarRequest car){
         Map<String,String> response = new HashMap<>();
         try {
-            carServices.addToCart(userId, car);
+            carServices.addToCart(car);
             response.put("message", "Carrito creado correctamente");
             return ResponseEntity.ok(response);
         } catch (Exception e) {

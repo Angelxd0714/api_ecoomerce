@@ -1,10 +1,11 @@
 package com.ecommerce.api.dto.response;
 
-import com.ecommerce.api.dto.request.ProductRequest;
-import com.ecommerce.api.dto.request.UserRequest;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -12,7 +13,9 @@ import java.time.LocalDateTime;
 @Setter
 public class CarDTO {
     private Long userId;
-    private Long[] productId;
+    private List<ProductDTO> productId = new ArrayList<>();
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+
 }
