@@ -4,6 +4,7 @@ import com.ecommerce.api.dto.request.OrdersRequest;
 import com.ecommerce.api.dto.request.PaymentRequest;
 import com.ecommerce.api.dto.request.UserRequest;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -29,6 +30,7 @@ import com.ecommerce.api.services.ServiceMercadoPago;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api/payment")
+@Slf4j
 public class ControllerPayment {
     @Autowired
     private PaymentServices paymentServices;
@@ -36,6 +38,7 @@ public class ControllerPayment {
 
     @PostMapping("/create-payment-intent/{userId}")
     public ResponseEntity<Map<String, String>> createPayment(@PathVariable Long userId) {
+        log.info("userId:{}",userId);
         try {
             paymentServices.createPayment(userId);
             return ResponseEntity.ok(Collections.singletonMap("message", "Pago creado exitosamente."));

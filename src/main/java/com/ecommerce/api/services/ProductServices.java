@@ -320,6 +320,32 @@ public class ProductServices implements CrudProduct {
                 .build()).toList();
 
     }
+
+    @Override
+    public List<ProductDTO> findByIds(List<Long> id) {
+        return repositoryProduct.findByIds(id).stream().map(product -> ProductDTO.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .stock(product.getStock())
+                .image(product.getImage())
+                .categories(product.getCategories().stream().map(category ->
+                        CategoryDTO.builder()
+                                .id(category.getId())
+                                .name(category.getName())
+                                .description(category.getDescription())
+                                .build()).toList())
+                .marker(MarkersDTO.builder()
+                        .id(product.getMarker().getId())
+                        .name(product.getMarker().getName())
+                        .description(product.getMarker().getDescription())
+                        .build())
+                .createdAt(product.getCreatedAt())
+                .updatedAt(product.getUpdatedAt())
+                .build()).toList();
+    }
+
     @Transactional
     public void updateProduct(Long orderId){
         Orders orders = Orders.builder()

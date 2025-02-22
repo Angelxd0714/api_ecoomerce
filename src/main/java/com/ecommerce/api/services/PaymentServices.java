@@ -36,6 +36,9 @@ public class PaymentServices implements CrudPayments {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
+    @Autowired
+    private ProductServices productService;
+
     @Override
     public void createPayment(Long userId) {
         List<CarDTO> car = carServices.getCart(userId);
@@ -44,32 +47,49 @@ public class PaymentServices implements CrudPayments {
             throw new IllegalArgumentException("No hay productos");
         }
 
-        // Calcular el precio total CORRECTAMENTE
-        BigDecimal carPriceProduct = car.stream()
-                .flatMap(carDTO -> carDTO.getProductId().stream()) // Aplanar la lista de productos
-                .map(ProductDTO::getPrice) // Obtener el precio del ProductDTO
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        // Obtener los IDs de productos CORRECTAMENTE
+        // Obtener los IDs de productos
         Set<Long> productIds = car.stream()
-                .flatMap(carDTO -> carDTO.getProductId().stream()) // Aplanar la lista de productos
-                .map(ProductDTO::getId) // Obtener el ID del ProductDTO
+                .flatMap(carDTO -> carDTO.getProductId().stream())
+                .map(ProductDTO::getId)
                 .collect(Collectors.toSet());
 
-        OrdersRequest order = OrdersRequest.builder()
-                .userId(userId)
-                .orderDate(LocalDate.now())
-                .status("Pendiente")
-                .totalAmount(carPriceProduct)
-                .productRequest(productIds) // Usar el Set<Long>
-                .build();
+        // Consultar los productos en la base de datos
+        List<ProductDTO> products = productService.findByIds(productIds.stream().toList());
 
+        // Calcular el precio total evitando nulos
+        BigDecimal carPriceProduct = products.stream()
+                .map(product -> product.getPrice() != null ? product.getPrice() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // Convertir a ProductRequest si es necesario
+        List<ProductRequest> productRequests =
+                products.stream()
+                        .map(product -> ProductRequest.builder()
+                                .id(product.getId())
+                                .name(product.getName())
+                                .description(product.getDescription())
+                                .price(product.getPrice())
+                                .stock(product.getStock())
+                                .build())
+                        .toList();
+
+        // Crear la orden
+        OrdersRequest order =
+                OrdersRequest.builder()
+                        .userId(userId)
+                        .orderDate(LocalDate.now())
+                        .status("Pendiente")
+                        .totalAmount(carPriceProduct)
+                        .productRequest(productRequests.stream().map(ProductRequest::getId).collect(Collectors.toSet()))
+                        .build();
+
+        // Guardar orden en base de datos
         ordersServices.save(order);
         carServices.clearCart(userId);
 
+        // Enviar orden a RabbitMQ
         rabbitTemplate.convertAndSend("payment_queue", order);
     }
-
     @Override
     public List<PaymentsDTO> findAll() {
        return repositoryPayment.findAll().stream().map(x-> PaymentsDTO.builder()

@@ -21,4 +21,5 @@ public interface CrudProduct {
     List<ProductDTO> findByCategory(String category);
     List<ProductDTO> findByMarker(String marker);
     List<ProductDTO> findByPrice(BigDecimal price);
+    List<ProductDTO> findByIds(List<Long> id);
 }

@@ -7,6 +7,7 @@ import com.ecommerce.api.dto.response.CategoryDTO;
 import com.ecommerce.api.dto.response.MarkersDTO;
 import com.ecommerce.api.dto.response.ProductDTO;
 import com.ecommerce.api.persistence.entities.Product;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -29,7 +30,8 @@ import java.util.stream.Collectors;
 public class CarServices implements CrudCar {
     @Autowired
     private RepositoryCar repositoryCar;
-
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private final RedisTemplate<String, Object> redisTemplate;
 
@@ -47,10 +49,10 @@ public class CarServices implements CrudCar {
         }
 
         return cartItems.stream()
-                .map(item -> (CarDTO) item) // Casteo a CarRequest (asumo que los items en Redis son CarRequest)
+                .map(item -> objectMapper.convertValue(item, CarRequest.class)) // Convertir correctamente
                 .map(carRequest -> {
-                    List<ProductDTO> products = carRequest.getProductId().stream() // Stream de ProductRequest
-                            .map(productRequest -> ProductDTO.builder() // Construye ProductDTO
+                    List<ProductDTO> products = Arrays.stream(carRequest.getProductId())
+                            .map(productRequest -> ProductDTO.builder()
                                     .id(productRequest.getId())
                                     .name(productRequest.getName())
                                     .price(productRequest.getPrice())
@@ -59,7 +61,7 @@ public class CarServices implements CrudCar {
 
                     return CarDTO.builder()
                             .userId(carRequest.getUserId())
-                            .productId(products) // Usa la lista de ProductDTOs
+                            .productId(products)
                             .createdAt(carRequest.getCreatedAt())
                             .updatedAt(carRequest.getUpdatedAt())
                             .build();

@@ -40,5 +40,6 @@ public interface RepositoryProduct extends CrudRepository<Product,Long> {
             "p.order = :#{#product.order} " +
             "WHERE p.id = :id")
     void updateProductoPersonalize(@Param("id") Long id, @Param("product") Product product);
-
+      @Query("select p from products p where p.id in ?1")
+    List<Product> findByIds(List<Long> ids);
 }

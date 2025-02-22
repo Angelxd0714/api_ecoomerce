@@ -64,10 +64,10 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.POST, "api/marker/**").permitAll();
                     http.requestMatchers(HttpMethod.PUT, "api/marker/**").hasAnyRole("ADMIN", "SELLER");
                     http.requestMatchers(HttpMethod.DELETE, "api/marker/**").hasAnyRole("ADMIN");
-                    http.requestMatchers(HttpMethod.GET,"api/payment").hasAnyRole("ADMIN","SELLER","CLIENT");
-                    http.requestMatchers(HttpMethod.POST, "api/payment").hasAnyRole("ADMIN", "CLIENT");
-                    http.requestMatchers(HttpMethod.PUT, "api/payment").hasAnyRole("ADMIN");
-                    http.requestMatchers(HttpMethod.DELETE, "api/payment").hasAnyRole("ADMIN");
+                    http.requestMatchers(HttpMethod.GET,"api/payment/**").hasAnyRole("ADMIN","SELLER","CLIENT");
+                    http.requestMatchers(HttpMethod.POST, "api/payment/**").permitAll();
+                    http.requestMatchers(HttpMethod.PUT, "api/payment/**").hasAnyRole("ADMIN");
+                    http.requestMatchers(HttpMethod.DELETE, "api/payment/**").hasAnyRole("ADMIN");
                     http.anyRequest().authenticated();
                 })
                 .addFilterBefore(new JwtTokenValidator(jwtUtils), BasicAuthenticationFilter.class)
