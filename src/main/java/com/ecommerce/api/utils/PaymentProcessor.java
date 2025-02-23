@@ -5,6 +5,7 @@ import com.ecommerce.api.dto.request.PaymentRequest;
 import com.ecommerce.api.dto.response.UsersDTO;
 import com.ecommerce.api.persistence.entities.Users;
 import com.ecommerce.api.services.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,8 @@ public class PaymentProcessor {
 
     @RabbitListener(queues = "payment_queue")
     public void processPayment(PaymentRequest paymentRequest) {
-        UsersDTO user = userDetailService.getUserIdent(paymentRequest.getUserId());
+        UsersDTO user = userDetailService.getUserById(paymentRequest.getUserId());
+        System.out.println("payment: " + paymentRequest.getPaymentAmount());
         Pair<Boolean, Long> result = serviceMercadoPago.processPayment(paymentRequest, user.getEmail(), BigDecimal.valueOf(paymentRequest.getPaymentAmount()));
         if (result.getLeft()) {
             OrdersRequest order = OrdersRequest.builder()
@@ -43,6 +45,14 @@ public class PaymentProcessor {
                     .build();
             ordersServices.save(order);
             productServices.updateProduct(paymentRequest.getOrderId());
+        }else{
+             OrdersRequest order = OrdersRequest.builder()
+                    .userId(user.getUserId())
+                    .orderDate(paymentRequest.getPaymentDate())
+                    .status("Rechazado")
+                    .totalAmount(BigDecimal.valueOf(paymentRequest.getPaymentAmount()))
+                    .build();
+            ordersServices.save(order);
         }
     }
 }

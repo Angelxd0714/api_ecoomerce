@@ -2,6 +2,7 @@ package com.ecommerce.api.dto.request;
 
 import lombok.*;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Set;
@@ -11,7 +12,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @Setter
-public class OrdersRequest {
+public class OrdersRequest  implements Serializable {
     private Long id;
     private Long userId;
     private LocalDate  orderDate;

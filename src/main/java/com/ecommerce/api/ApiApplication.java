@@ -66,6 +66,8 @@ public class ApiApplication {
 			Users adminUser = Users.builder()
 					.username("admin")
 					.password(passwordHashed)
+					.email("angelxd0714@gmail.com")
+					.userId(141198L)
 					.roles(Set.of(adminRole))
 					.isEnabled(true)
 					.build();

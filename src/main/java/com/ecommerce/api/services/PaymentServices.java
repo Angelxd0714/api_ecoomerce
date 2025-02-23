@@ -8,6 +8,7 @@ import com.ecommerce.api.dto.response.PaymentsDTO;
 import com.ecommerce.api.dto.response.ProductDTO;
 import com.ecommerce.api.persistence.entities.Orders;
 import com.ecommerce.api.persistence.entities.Users;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
+@Slf4j
 public class PaymentServices implements CrudPayments {
     @Autowired
     private RepositoryPayment repositoryPayment;
@@ -55,10 +57,11 @@ public class PaymentServices implements CrudPayments {
 
         // Consultar los productos en la base de datos
         List<ProductDTO> products = productService.findByIds(productIds.stream().toList());
-
+        log.info("products: {}",products.stream().toList());
         // Calcular el precio total evitando nulos
         BigDecimal carPriceProduct = products.stream()
-                .map(product -> product.getPrice() != null ? product.getPrice() : BigDecimal.ZERO)
+                .map(product -> product.getPrice() != null ?
+                        product.getPrice().multiply(BigDecimal.valueOf(product.getStock())) : BigDecimal.ZERO)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         // Convertir a ProductRequest si es necesario
@@ -83,11 +86,12 @@ public class PaymentServices implements CrudPayments {
                         .productRequest(productRequests.stream().map(ProductRequest::getId).collect(Collectors.toSet()))
                         .build();
 
+
         // Guardar orden en base de datos
         ordersServices.save(order);
         carServices.clearCart(userId);
 
-        // Enviar orden a RabbitMQ
+        System.out.println("Orden antes de enviar: " + order);
         rabbitTemplate.convertAndSend("payment_queue", order);
     }
     @Override
