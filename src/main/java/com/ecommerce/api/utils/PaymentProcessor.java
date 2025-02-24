@@ -33,8 +33,14 @@ public class PaymentProcessor {
 
     @RabbitListener(queues = "payment_queue")
     public void processPayment(PaymentRequest paymentRequest) {
+        if (paymentRequest == null) {
+            System.err.println("❌ Error: Mensaje recibido como null");
+            return;
+        }
+
+        System.out.println("✅ Mensaje recibido correctamente: " + paymentRequest.getPaymentStatus());
         UsersDTO user = userDetailService.getUserById(paymentRequest.getUserId());
-        System.out.println("payment: " + paymentRequest.getPaymentAmount());
+
         Pair<Boolean, Long> result = serviceMercadoPago.processPayment(paymentRequest, user.getEmail(), BigDecimal.valueOf(paymentRequest.getPaymentAmount()));
         if (result.getLeft()) {
             OrdersRequest order = OrdersRequest.builder()

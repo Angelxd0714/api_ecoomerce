@@ -1,5 +1,6 @@
 package com.ecommerce.api.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.io.Serializable;
@@ -15,6 +16,7 @@ import java.util.Set;
 public class OrdersRequest  implements Serializable {
     private Long id;
     private Long userId;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate  orderDate;
    private String status;
     private BigDecimal totalAmount;

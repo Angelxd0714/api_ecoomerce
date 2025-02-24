@@ -7,12 +7,13 @@ import com.ecommerce.api.dto.request.PaymentRequest;
 import com.ecommerce.api.dto.response.PaymentsDTO;
 import com.ecommerce.api.persistence.entities.Orders;
 import com.ecommerce.api.persistence.entities.Payments;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.time.LocalDate;
 import java.util.List;
 
 public interface CrudPayments {
-    void createPayment(Long userId);
+    void createPayment(Long userId) throws JsonProcessingException;
     List<PaymentsDTO> findAll();
     PaymentsDTO findById(Long id);
     void updatePayment(PaymentRequest payment, Long id);

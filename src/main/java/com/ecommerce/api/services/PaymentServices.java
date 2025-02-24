@@ -8,6 +8,8 @@ import com.ecommerce.api.dto.response.PaymentsDTO;
 import com.ecommerce.api.dto.response.ProductDTO;
 import com.ecommerce.api.persistence.entities.Orders;
 import com.ecommerce.api.persistence.entities.Users;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,7 @@ import com.ecommerce.api.persistence.repository.RepositoryPayment;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -42,7 +45,7 @@ public class PaymentServices implements CrudPayments {
     private ProductServices productService;
 
     @Override
-    public void createPayment(Long userId) {
+    public void createPayment(Long userId) throws JsonProcessingException {
         List<CarDTO> car = carServices.getCart(userId);
 
         if (car.isEmpty()) {
@@ -57,7 +60,7 @@ public class PaymentServices implements CrudPayments {
 
         // Consultar los productos en la base de datos
         List<ProductDTO> products = productService.findByIds(productIds.stream().toList());
-        log.info("products: {}",products.stream().toList());
+
         // Calcular el precio total evitando nulos
         BigDecimal carPriceProduct = products.stream()
                 .map(product -> product.getPrice() != null ?
@@ -80,7 +83,7 @@ public class PaymentServices implements CrudPayments {
         OrdersRequest order =
                 OrdersRequest.builder()
                         .userId(userId)
-                        .orderDate(LocalDate.now())
+                        .orderDate(LocalDate.parse(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
                         .status("Pendiente")
                         .totalAmount(carPriceProduct)
                         .productRequest(productRequests.stream().map(ProductRequest::getId).collect(Collectors.toSet()))
@@ -91,7 +94,8 @@ public class PaymentServices implements CrudPayments {
         ordersServices.save(order);
         carServices.clearCart(userId);
 
-        System.out.println("Orden antes de enviar: " + order);
+        log.info("📤 Enviando a RabbitMQ: {}", new ObjectMapper().writeValueAsString(order));
+
         rabbitTemplate.convertAndSend("payment_queue", order);
     }
     @Override
