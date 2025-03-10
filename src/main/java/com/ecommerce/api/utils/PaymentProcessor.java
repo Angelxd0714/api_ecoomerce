@@ -41,13 +41,13 @@ public class PaymentProcessor {
         System.out.println("✅ Mensaje recibido correctamente: " + paymentRequest.getPaymentStatus());
         UsersDTO user = userDetailService.getUserById(paymentRequest.getUserId());
 
-        Pair<Boolean, Long> result = serviceMercadoPago.processPayment(paymentRequest, user.getEmail(), BigDecimal.valueOf(paymentRequest.getPaymentAmount()));
+        Pair<Boolean, Long> result = serviceMercadoPago.processPayment(paymentRequest, user.getEmail(), paymentRequest.getPaymentAmount());
         if (result.getLeft()) {
             OrdersRequest order = OrdersRequest.builder()
                     .userId(user.getUserId())
                     .orderDate(paymentRequest.getPaymentDate())
                     .status("Pagado")
-                    .totalAmount(BigDecimal.valueOf(paymentRequest.getPaymentAmount()))
+                    .totalAmount(paymentRequest.getPaymentAmount())
                     .build();
             ordersServices.save(order);
             productServices.updateProduct(paymentRequest.getOrderId());
@@ -56,7 +56,7 @@ public class PaymentProcessor {
                     .userId(user.getUserId())
                     .orderDate(paymentRequest.getPaymentDate())
                     .status("Rechazado")
-                    .totalAmount(BigDecimal.valueOf(paymentRequest.getPaymentAmount()))
+                    .totalAmount(paymentRequest.getPaymentAmount())
                     .build();
             ordersServices.save(order);
         }

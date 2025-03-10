@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface CrudPayments {
-    void createPayment(Long userId) throws JsonProcessingException;
+    void createPayment(PaymentRequest paymentRequest) throws JsonProcessingException;
     List<PaymentsDTO> findAll();
     PaymentsDTO findById(Long id);
     void updatePayment(PaymentRequest payment, Long id);

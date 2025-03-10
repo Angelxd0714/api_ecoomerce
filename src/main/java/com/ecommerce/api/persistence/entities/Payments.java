@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Builder
@@ -29,7 +30,7 @@ public class Payments {
     @Column(name = "payment_method")
     private String paymentMethod;
     @Column(name = "payment_amount")
-    private Long paymentAmount;
+    private BigDecimal paymentAmount;
     @Column(name = "payment_status")
     private String paymentStatus;
     @Column(name = "payment_currency")

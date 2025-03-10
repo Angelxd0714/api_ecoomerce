@@ -17,6 +17,7 @@ import com.ecommerce.api.dto.response.ProductDTO;
 import com.ecommerce.api.persistence.entities.Orders;
 import com.ecommerce.api.persistence.repository.RepositoryCategory;
 import com.ecommerce.api.persistence.repository.RepositoryMarkers;
+import com.ecommerce.api.utils.UploadImages;
 import com.ecommerce.api.utils.Utils;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -42,25 +43,15 @@ public class ProductServices implements CrudProduct {
 
 
     @Autowired
-    private StorageService s3Service;
+    private UploadImages uploadFile;
     @Override
     public void save(ProductRequest product, MultipartFile file) throws IOException {
         log.info("Saving product: {}", product.getName());
         try {
-            Utils utils = new Utils();
-            // 1. Use a system-provided temporary file (best practice for temporary files)
-            Path tempFile = Files.createTempFile("product-image", "." + utils.getFileExtension(file.getOriginalFilename())); // Unique prefix
 
-            // 2. Transfer the MultipartFile content to the temporary file
-            Files.copy(file.getInputStream(), tempFile, StandardCopyOption.REPLACE_EXISTING);
+            String url = uploadFile.uploadImage(file);
 
-            String name = file.getOriginalFilename() + "-" + System.currentTimeMillis();
 
-            // 3. Upload to S3 using the temporary file
-            String url = s3Service.uploadFile(name, tempFile.toFile());  // Pass the File object";
-
-            // 4. (Important!) Delete the temporary file after upload
-            Files.delete(tempFile); // Ensure cleanup
 
 
             List<Category> categories = product.getCategoriesRequestLis().stream()
@@ -141,7 +132,7 @@ public class ProductServices implements CrudProduct {
     @Override
     @Transactional
     public void update(ProductRequest productRequest, Long id, MultipartFile file) throws IOException {
-        Utils utils = new Utils();
+
         Product existingProduct = repositoryProduct.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
@@ -153,12 +144,9 @@ public class ProductServices implements CrudProduct {
 
         // 3. Manejo de imagen (solo si hay archivo nuevo)
         if (file != null && !file.isEmpty()) {
-            Path tempFile = Files.createTempFile("product-image", "." + utils.getFileExtension(file.getOriginalFilename()));
-            Files.copy(file.getInputStream(), tempFile, StandardCopyOption.REPLACE_EXISTING);
-            String fileName = file.getOriginalFilename() + "-" + System.currentTimeMillis();
-            String url = s3Service.uploadFile(fileName, tempFile.toFile());
+            String url = uploadFile.uploadImage(file);
             existingProduct.setImage(url);
-            Files.delete(tempFile);
+            Files.delete(Path.of(url));
         }
 
         // 4. Actualizar categorías (evitar duplicados)

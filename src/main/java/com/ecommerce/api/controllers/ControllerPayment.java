@@ -36,8 +36,8 @@ public class ControllerPayment {
     private PaymentServices paymentServices;
 
 
-    @PostMapping("/create-payment-intent/{userId}")
-    public ResponseEntity<Map<String, String>> createPayment(@PathVariable Long userId) {
+    @PostMapping("/create-payment-intent")
+    public ResponseEntity<Map<String, String>> createPayment(@RequestBody PaymentRequest userId) {
         log.info("userId:{}",userId);
         try {
             paymentServices.createPayment(userId);

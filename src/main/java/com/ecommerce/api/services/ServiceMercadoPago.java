@@ -8,14 +8,14 @@ import com.ecommerce.api.dto.request.PaymentRequest;
 import com.ecommerce.api.dto.request.UserRequest;
 import com.mercadopago.MercadoPagoConfig;
 
-import com.mercadopago.client.payment.PaymentClient;
-import com.mercadopago.client.payment.PaymentCreateRequest;
-import com.mercadopago.client.payment.PaymentPayerRequest;
+import com.mercadopago.client.payment.*;
 import com.mercadopago.client.preference.PreferenceClient;
 import com.mercadopago.client.preference.PreferenceItemRequest;
 import com.mercadopago.client.preference.PreferenceRequest;
 
+import com.mercadopago.exceptions.MPApiException;
 import com.mercadopago.resources.payment.Payment;
+import com.mercadopago.resources.payment.PaymentMethod;
 import com.mercadopago.resources.preference.Preference;
 
 import lombok.RequiredArgsConstructor;
@@ -39,6 +39,7 @@ public class ServiceMercadoPago {
       // Configurar el token antes de llamar a Mercado Pago
       MercadoPagoConfig.setAccessToken(accessToken);
 
+
       PaymentClient client = new PaymentClient();
       PaymentCreateRequest request = PaymentCreateRequest.builder()
               .transactionAmount(amount)
@@ -55,9 +56,12 @@ public class ServiceMercadoPago {
       } else {
         return Pair.of(false, null); // Pago rechazado
       }
-    } catch (Exception e) {
-      e.printStackTrace();
-      return Pair.of(false, null); // Error en el pago
+    }catch (Exception e) {
+        e.printStackTrace();
+        if (e instanceof MPApiException apiException) {
+            System.err.println("❌ Error API MercadoPago: " + apiException.getApiResponse().getContent());
+        }
+        return Pair.of(false, null);
     }
   }
   }

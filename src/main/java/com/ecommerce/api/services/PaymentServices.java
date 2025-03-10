@@ -45,9 +45,9 @@ public class PaymentServices implements CrudPayments {
     private ProductServices productService;
 
     @Override
-    public void createPayment(Long userId) throws JsonProcessingException {
-        List<CarDTO> car = carServices.getCart(userId);
-
+    public void createPayment(PaymentRequest paymentRequest) throws JsonProcessingException {
+        List<CarDTO> car = carServices.getCart(paymentRequest.getUserId());
+        System.out.println(paymentRequest.getUserId());
         if (car.isEmpty()) {
             throw new IllegalArgumentException("No hay productos");
         }
@@ -60,6 +60,7 @@ public class PaymentServices implements CrudPayments {
 
         // Consultar los productos en la base de datos
         List<ProductDTO> products = productService.findByIds(productIds.stream().toList());
+        log.info("productos:{}",products.stream().map(ProductDTO::getId).toList());
 
         // Calcular el precio total evitando nulos
         BigDecimal carPriceProduct = products.stream()
@@ -82,21 +83,28 @@ public class PaymentServices implements CrudPayments {
         // Crear la orden
         OrdersRequest order =
                 OrdersRequest.builder()
-                        .userId(userId)
-                        .orderDate(LocalDate.parse(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
+                        .userId(paymentRequest.getUserId())
+                        .orderDate(LocalDate.now())
                         .status("Pendiente")
                         .totalAmount(carPriceProduct)
                         .productRequest(productRequests.stream().map(ProductRequest::getId).collect(Collectors.toSet()))
                         .build();
 
+        paymentRequest.setPaymentAmount(order.getTotalAmount());
+        paymentRequest.setOrderId(order.getId());
+        paymentRequest.setPaymentDate(LocalDate.now());
+        paymentRequest.setPaymentStatus("Pendiente");
+        paymentRequest.setCreatedAt(LocalDate.now());
+
+
 
         // Guardar orden en base de datos
         ordersServices.save(order);
-        carServices.clearCart(userId);
+        carServices.clearCart(paymentRequest.getUserId());
 
-        log.info("📤 Enviando a RabbitMQ: {}", new ObjectMapper().writeValueAsString(order));
+        log.info("📤 Enviando a RabbitMQ: {}",order.getTotalAmount());
 
-        rabbitTemplate.convertAndSend("payment_queue", order);
+        rabbitTemplate.convertAndSend("payment_queue", paymentRequest);
     }
     @Override
     public List<PaymentsDTO> findAll() {

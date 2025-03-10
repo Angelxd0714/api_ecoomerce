@@ -2,6 +2,7 @@ package com.ecommerce.api.dto.response;
 
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 @Builder
 @Getter
@@ -13,7 +14,7 @@ public class PaymentsDTO {
     private Long orderId;
     private Long userId;
     private String paymentMethod;
-    private Long paymentAmount;
+    private BigDecimal paymentAmount;
     private String paymentStatus;
     private String paymentCurrency;
     private LocalDate paymentDate;
