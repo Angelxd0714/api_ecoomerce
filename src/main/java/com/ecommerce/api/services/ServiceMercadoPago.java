@@ -45,6 +45,7 @@ public class ServiceMercadoPago {
               .transactionAmount(amount)
               .description("Pago de orden " + paymentRequest.getOrderId())
               .installments(1)
+              .token(paymentRequest.getMpCardToken())
               .paymentMethodId(paymentRequest.getPaymentMethod())
               .payer(PaymentPayerRequest.builder().email(email).build())
               .build();

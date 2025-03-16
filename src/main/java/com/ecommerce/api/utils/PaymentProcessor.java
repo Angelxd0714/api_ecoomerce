@@ -7,6 +7,7 @@ import com.ecommerce.api.persistence.entities.Users;
 import com.ecommerce.api.services.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 
 @Component
-
+@Slf4j
 public class PaymentProcessor {
     @Autowired
     private ServiceMercadoPago serviceMercadoPago;
@@ -41,24 +42,33 @@ public class PaymentProcessor {
         System.out.println("✅ Mensaje recibido correctamente: " + paymentRequest.getPaymentStatus());
         UsersDTO user = userDetailService.getUserById(paymentRequest.getUserId());
 
-        Pair<Boolean, Long> result = serviceMercadoPago.processPayment(paymentRequest, user.getEmail(), paymentRequest.getPaymentAmount());
-        if (result.getLeft()) {
-            OrdersRequest order = OrdersRequest.builder()
-                    .userId(user.getUserId())
-                    .orderDate(paymentRequest.getPaymentDate())
-                    .status("Pagado")
-                    .totalAmount(paymentRequest.getPaymentAmount())
-                    .build();
-            ordersServices.save(order);
-            productServices.updateProduct(paymentRequest.getOrderId());
-        }else{
-             OrdersRequest order = OrdersRequest.builder()
-                    .userId(user.getUserId())
-                    .orderDate(paymentRequest.getPaymentDate())
-                    .status("Rechazado")
-                    .totalAmount(paymentRequest.getPaymentAmount())
-                    .build();
-            ordersServices.save(order);
+        try {
+            Pair<Boolean, Long> result = serviceMercadoPago.processPayment(
+                    paymentRequest, user.getEmail(), paymentRequest.getPaymentAmount());
+
+            if (result.getLeft()) {
+                OrdersRequest order = OrdersRequest.builder()
+                        .userId(user.getUserId())
+                        .orderDate(paymentRequest.getPaymentDate())
+                        .status("Pagado")
+                        .totalAmount(paymentRequest.getPaymentAmount())
+                        .build();
+                ordersServices.save(order);
+                productServices.updateProduct(paymentRequest.getOrderId());
+            } else {
+                OrdersRequest order = OrdersRequest.builder()
+                        .userId(user.getUserId())
+                        .orderDate(paymentRequest.getPaymentDate())
+                        .status("Rechazado")
+                        .totalAmount(paymentRequest.getPaymentAmount())
+                        .build();
+                ordersServices.save(order);
+            }
+
+        } catch (AmqpRejectAndDontRequeueException e) {
+            System.err.println("❌ Token inválido, descartando mensaje de la cola...");
+            log.error("❌ Token inválido, descartando mensaje de la cola...", e);
+            throw new AmqpRejectAndDontRequeueException("Invalid token, message removed");
         }
     }
 }
