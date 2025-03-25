@@ -19,6 +19,7 @@ import com.ecommerce.api.persistence.entities.Users;
 import com.ecommerce.api.persistence.interfaces.CrudCar;
 import com.ecommerce.api.persistence.repository.RepositoryCar;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -51,13 +52,7 @@ public class CarServices implements CrudCar {
         return cartItems.stream()
                 .map(item -> objectMapper.convertValue(item, CarRequest.class)) // Convertir correctamente
                 .map(carRequest -> {
-                    List<ProductDTO> products = Arrays.stream(carRequest.getProductId())
-                            .map(productRequest -> ProductDTO.builder()
-                                    .id(productRequest.getId())
-                                    .name(productRequest.getName())
-                                    .price(productRequest.getPrice())
-                                    .build())
-                            .collect(Collectors.toList());
+                    List<Long> products = Arrays.stream(carRequest.getProductId()).toList();
 
                     return CarDTO.builder()
                             .userId(carRequest.getUserId())
@@ -79,8 +74,11 @@ public class CarServices implements CrudCar {
 
         Car car1 = Car.builder()
                 .userId(Users.builder().id(car.getUserId()).build())
-                .createdAt(car.getCreatedAt())
-                .updatedAt(car.getUpdatedAt())
+                .quantity(car.getQuantity())
+                .productId(Arrays.stream(car.getProductId()).map(x->Product.builder().id(x).build()).toArray(Product[]::new))
+                .createdAt(
+                        LocalDateTime.now()
+                )
                 .build();
 
 
@@ -97,16 +95,7 @@ public class CarServices implements CrudCar {
                 repositoryCar.findAll().stream().map(car -> CarDTO.builder()
                 .userId(car.getUserId().getId())
                 .productId(
-                        List.of(Arrays.stream(car.getProductId())
-                                .map(product -> ProductDTO.builder()
-                                        .id(product.getId())
-                                        .name(product.getName())
-                                        .description(product.getDescription())
-                                        .price(product.getPrice())
-                                        .createdAt(product.getCreatedAt())
-                                        .updatedAt(product.getUpdatedAt())
-                                        .build())
-                                .toArray(ProductDTO[]::new))
+                        List.of(Arrays.stream(car.getProductId()).map(Product::getId).toArray(Long[]::new))
                 )
                 .createdAt(car.getCreatedAt())
                 .updatedAt(car.getUpdatedAt())
@@ -126,16 +115,8 @@ public class CarServices implements CrudCar {
         return  CarDTO.builder()
                 .userId(car.getUserId().getId())
                 .productId(
-                        List.of(Arrays.stream(car.getProductId())
-                                .map(product -> ProductDTO.builder()
-                                        .id(product.getId())
-                                        .name(product.getName())
-                                        .description(product.getDescription())
-                                        .price(product.getPrice())
-                                        .createdAt(product.getCreatedAt())
-                                        .updatedAt(product.getUpdatedAt())
-                                        .build())
-                                .toArray(ProductDTO[]::new))
+                        List.of(Arrays.stream(car.getProductId()).map(Product::getId).toArray(Long[]::new))
+
                 )
                 .createdAt(car.getCreatedAt())
                 .updatedAt(car.getUpdatedAt())
@@ -157,16 +138,8 @@ public class CarServices implements CrudCar {
         return  repositoryCar.findAllByUserId(userId).stream().map(car -> CarDTO.builder()
                 .userId(car.getUserId().getId())
                 .productId(
-                        List.of(Arrays.stream(car.getProductId())
-                                .map(product -> ProductDTO.builder()
-                                        .id(product.getId())
-                                        .name(product.getName())
-                                        .description(product.getDescription())
-                                        .price(product.getPrice())
-                                        .createdAt(product.getCreatedAt())
-                                        .updatedAt(product.getUpdatedAt())
-                                        .build())
-                                .toArray(ProductDTO[]::new))
+                        List.of(Arrays.stream(car.getProductId()).map(Product::getId).toArray(Long[]::new))
+
                 )
                 .createdAt(car.getCreatedAt())
                 .updatedAt(car.getUpdatedAt())
@@ -185,11 +158,7 @@ public class CarServices implements CrudCar {
             throw new IllegalArgumentException("El id del usuario no puede ser nulo");
         }
         Product [] products = Arrays.stream(car.getProductId()).map(product -> Product.builder()
-                .id(Long.parseLong(String.valueOf(product.getId())))
-                .name(product.getName())
-                .description(product.getDescription())
-                .price(product.getPrice())
-                .stock(product.getStock())
+
                 .build()).toArray(Product[]::new);
 
 

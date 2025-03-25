@@ -29,5 +29,7 @@ public class Car {
     private LocalDateTime createdAt;
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+    @Column(name = "quantity")
+    private Integer quantity;
 
 }

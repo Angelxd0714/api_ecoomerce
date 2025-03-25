@@ -55,7 +55,6 @@ public class PaymentServices implements CrudPayments {
         // Obtener los IDs de productos
         Set<Long> productIds = car.stream()
                 .flatMap(carDTO -> carDTO.getProductId().stream())
-                .map(ProductDTO::getId)
                 .collect(Collectors.toSet());
 
         // Consultar los productos en la base de datos

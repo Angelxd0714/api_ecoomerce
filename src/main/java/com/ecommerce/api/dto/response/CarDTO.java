@@ -13,7 +13,8 @@ import java.util.List;
 @Setter
 public class CarDTO {
     private Long userId;
-    private List<ProductDTO> productId = new ArrayList<>();
+    private List<Long> productId = new ArrayList<>();
+    private Integer quantity;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
