@@ -7,6 +7,7 @@ import com.ecommerce.api.dto.response.OrdersDTO;
 import com.ecommerce.api.dto.response.ProductDTO;
 import com.ecommerce.api.persistence.entities.Product;
 import com.ecommerce.api.persistence.entities.Users;
+import com.ecommerce.api.persistence.repository.RepositoryUsers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +24,8 @@ import java.util.stream.Collectors;
 public class OrdersServices implements CrudOrder {
     @Autowired
     private RepositoryOrder repositoryOrder;
-
+    @Autowired
+    private RepositoryUsers repositoryUsers;
 
     @Override
     public void save(OrdersRequest order) {
@@ -33,8 +35,9 @@ public class OrdersServices implements CrudOrder {
                                 .id( product)
                                 .build()
                 ).collect(Collectors.toSet());
+        Users  user = repositoryUsers.findByUserId(order.getUserId()).orElseThrow(() -> new IllegalArgumentException("El usuario no existe"));
         Orders orders = Orders.builder()
-                .user(Users.builder().id(order.getUserId()).build())
+                .user(user)
                 .orderDate(order.getOrderDate())
                 .status(order.getStatus())
                         .products(products.stream().map(product -> Product.builder()

@@ -3,7 +3,6 @@ package com.ecommerce.api.utils;
 import com.ecommerce.api.dto.request.OrdersRequest;
 import com.ecommerce.api.dto.request.PaymentRequest;
 import com.ecommerce.api.dto.response.UsersDTO;
-import com.ecommerce.api.persistence.entities.Users;
 import com.ecommerce.api.services.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
@@ -12,13 +11,11 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-
 @Component
 @Slf4j
 public class PaymentProcessor {
     @Autowired
-    private ServiceMercadoPago serviceMercadoPago;
+    private StripePago serviceMercadoPago;
 
     @Autowired
     private PaymentServices  paymentServices;
@@ -40,7 +37,7 @@ public class PaymentProcessor {
         }
 
         System.out.println("✅ Mensaje recibido correctamente: " + paymentRequest.getPaymentStatus());
-        UsersDTO user = userDetailService.getUserById(paymentRequest.getUserId());
+        UsersDTO user = userDetailService.getUserIdent(paymentRequest.getUserId());
 
         try {
             Pair<Boolean, Long> result = serviceMercadoPago.processPayment(

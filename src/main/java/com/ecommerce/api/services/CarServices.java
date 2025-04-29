@@ -38,6 +38,9 @@ public class CarServices implements CrudCar {
 
     public void addToCart(CarRequest productData) {
         String key = "cart:" + productData.getUserId();
+        productData.setCreatedAt(
+                String.valueOf(LocalDateTime.now())
+        );
         redisTemplate.opsForList().rightPush(key, productData);
         redisTemplate.expire(key, 1, TimeUnit.HOURS); // Expira en 1 hora
     }
@@ -57,8 +60,12 @@ public class CarServices implements CrudCar {
                     return CarDTO.builder()
                             .userId(carRequest.getUserId())
                             .productId(products)
-                            .createdAt(carRequest.getCreatedAt())
-                            .updatedAt(carRequest.getUpdatedAt())
+                            .createdAt(LocalDateTime.parse(
+                                     LocalDateTime.now().toString()
+                            ))
+                            .updatedAt(
+                                    LocalDateTime.now()
+                            )
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -164,8 +171,8 @@ public class CarServices implements CrudCar {
 
        repositoryCar.findById(id).ifPresentOrElse(x->{
         x.setProductId(products);
-        x.setUpdatedAt(car.getUpdatedAt());;
-        x.setCreatedAt(car.getCreatedAt());
+        x.setUpdatedAt(LocalDateTime.parse(car.getUpdatedAt()));;
+        x.setCreatedAt(LocalDateTime.parse(car.getCreatedAt()));
         x.setUserId(Users.builder().id(car.getUserId()).build());
         repositoryCar.save(x);
        }, null);

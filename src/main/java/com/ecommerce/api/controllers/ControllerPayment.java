@@ -1,8 +1,6 @@
 package com.ecommerce.api.controllers;
 
-import com.ecommerce.api.dto.request.OrdersRequest;
 import com.ecommerce.api.dto.request.PaymentRequest;
-import com.ecommerce.api.dto.request.UserRequest;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,16 +13,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
 import java.util.*;
 import java.util.Collections;
 import java.util.HashMap;
 
 import com.ecommerce.api.services.PaymentServices;
-import com.ecommerce.api.services.ServiceMercadoPago;
 
 
 @CrossOrigin("*")
@@ -38,11 +33,12 @@ public class ControllerPayment {
 
     @PostMapping("/create-payment-intent")
     public ResponseEntity<Map<String, String>> createPayment(@RequestBody PaymentRequest userId) {
-        log.info("userId:{}",userId);
+        log.info("userId:{}",userId.getUserId());
         try {
             paymentServices.createPayment(userId);
             return ResponseEntity.ok(Collections.singletonMap("message", "Pago creado exitosamente."));
         } catch (Exception e) {
+            log.error("Error al crear el pago", e);
             return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
         }
 

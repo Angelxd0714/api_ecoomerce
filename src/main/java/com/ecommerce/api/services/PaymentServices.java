@@ -45,29 +45,26 @@ public class PaymentServices implements CrudPayments {
     private ProductServices productService;
 
     @Override
-    public void createPayment(PaymentRequest paymentRequest) throws JsonProcessingException {
+    public void createPayment(PaymentRequest paymentRequest) {
         List<CarDTO> car = carServices.getCart(paymentRequest.getUserId());
-        System.out.println(paymentRequest.getUserId());
+        System.out.println("carrito: "+ car.get(0).getUserId());
         if (car.isEmpty()) {
             throw new IllegalArgumentException("No hay productos");
         }
 
-        // Obtener los IDs de productos
+
         Set<Long> productIds = car.stream()
                 .flatMap(carDTO -> carDTO.getProductId().stream())
                 .collect(Collectors.toSet());
+        log.info("ProductosId: {}",productIds);
 
-        // Consultar los productos en la base de datos
         List<ProductDTO> products = productService.findByIds(productIds.stream().toList());
-        log.info("productos:{}",products.stream().map(ProductDTO::getId).toList());
-
-        // Calcular el precio total evitando nulos
+               log.info("Productos: {}", products);
         BigDecimal carPriceProduct = products.stream()
                 .map(product -> product.getPrice() != null ?
                         product.getPrice().multiply(BigDecimal.valueOf(product.getStock())) : BigDecimal.ZERO)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // Convertir a ProductRequest si es necesario
         List<ProductRequest> productRequests =
                 products.stream()
                         .map(product -> ProductRequest.builder()
@@ -79,7 +76,6 @@ public class PaymentServices implements CrudPayments {
                                 .build())
                         .toList();
 
-        // Crear la orden
         OrdersRequest order =
                 OrdersRequest.builder()
                         .userId(paymentRequest.getUserId())
@@ -95,9 +91,6 @@ public class PaymentServices implements CrudPayments {
         paymentRequest.setPaymentStatus("Pendiente");
         paymentRequest.setCreatedAt(LocalDate.now());
 
-
-
-        // Guardar orden en base de datos
         ordersServices.save(order);
         carServices.clearCart(paymentRequest.getUserId());
 
