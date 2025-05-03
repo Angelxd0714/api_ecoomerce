@@ -28,9 +28,10 @@ public class StripePago {
 
         PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
                 .setAmount(amount.longValue() * 100)
-                .setCurrency("ars")
+                .setCurrency(paymentRequest.getPaymentCurrency())
                 .setPaymentMethod(paymentRequest.getMpCardToken())
                 .setConfirm(true)
+                .setConfirmationMethod(PaymentIntentCreateParams.ConfirmationMethod.AUTOMATIC)
                 .setReceiptEmail(email)
                 .build();
         try {
