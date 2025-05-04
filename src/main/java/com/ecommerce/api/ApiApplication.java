@@ -18,16 +18,21 @@ import com.ecommerce.api.persistence.repository.RepositoryUsers;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.*;
+
 @SpringBootApplication
 public class ApiApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ApiApplication.class, args);
 	}
+
 	@Bean
-	CommandLineRunner init(RepositoryPermissions servicePermission, RepositoryRoles serviceRol, RepositoryUsers serviceUser, PasswordEncoder passwordEncoder) {
+	CommandLineRunner init(RepositoryPermissions servicePermission, RepositoryRoles serviceRol,
+			RepositoryUsers serviceUser, PasswordEncoder passwordEncoder) {
 		return args -> {
-			// Create permissions
+			if (servicePermission.count() > 0 && serviceRol.count() > 0 && serviceUser.count() > 0) {
+				return;
+			}
 			Permissions createPermission = Permissions.builder()
 					.name("CREATE")
 					.build();
@@ -75,19 +80,20 @@ public class ApiApplication {
 			serviceUser.save(adminUser);
 		};
 	}
-//	@PostConstruct
-//	public void runScript() {
-//		try {
-//			Process process = Runtime.getRuntime().exec("./create_s3_bucket.sh");
-//			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-//			String line;
-//			while ((line = reader.readLine()) != null) {
-//				System.out.println(line);
-//			}
-//			process.waitFor();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
+	// @PostConstruct
+	// public void runScript() {
+	// try {
+	// Process process = Runtime.getRuntime().exec("./create_s3_bucket.sh");
+	// BufferedReader reader = new BufferedReader(new
+	// InputStreamReader(process.getInputStream()));
+	// String line;
+	// while ((line = reader.readLine()) != null) {
+	// System.out.println(line);
+	// }
+	// process.waitFor();
+	// } catch (Exception e) {
+	// e.printStackTrace();
+	// }
+	// }
 
 }

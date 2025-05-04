@@ -8,6 +8,7 @@ import lombok.*;
 @Getter
 @Setter
 public class CategoriesRequest {
+    private Long id;
     private String name;
     private String description;
 }

@@ -23,8 +23,6 @@ public class MarkersServices implements CrudMarkers {
                 .name(markers.getName())
                 .description(markers.getDescription())
                 .createdAt(markers.getCreatedAt())
-                .updatedAt(markers.getUpdatedAt())
-                .updatedAt(markers.getUpdatedAt())
                 .build();
         repositoryMarkers.save(markers1);
     }
@@ -34,48 +32,46 @@ public class MarkersServices implements CrudMarkers {
         if (id == null) {
             throw new IllegalArgumentException("El id no puede ser nulo");
         }
-      if (!repositoryMarkers.existsById(id)) {
+        if (!repositoryMarkers.existsById(id)) {
             throw new IllegalArgumentException("El marcador no existe");
         }
-       if (repositoryMarkers.findById(id).isEmpty()) {
-           throw new IllegalArgumentException("El marcador no existe");
-       }
+        if (repositoryMarkers.findById(id).isEmpty()) {
+            throw new IllegalArgumentException("El marcador no existe");
+        }
 
         return MarkersDTO.builder()
                 .name(repositoryMarkers.findById(id).get().getName())
                 .description(repositoryMarkers.findById(id).get().getDescription())
-                .createdAt(repositoryMarkers.findById(id).get().getCreatedAt()).build();
+                .createdAt(repositoryMarkers.findById(id).get().getCreatedAt())
+                .updatedAt(repositoryMarkers.findById(id).get().getUpdatedAt())
+                .build();
 
     }
 
     @Override
     public void update(MarkersRequest markers, Long id) {
         Markers markers1 = Markers.builder()
+                .id(id)
                 .name(markers.getName())
                 .description(markers.getDescription())
-                .createdAt(markers.getCreatedAt())
-                .updatedAt(markers.getUpdatedAt())
                 .build();
         if (id == null) {
             throw new IllegalArgumentException("El id no puede ser nulo");
         }
-        repositoryMarkers.findById(id).ifPresentOrElse(x->{
-            repositoryMarkers.updateMarker(markers1,id);
-        },null);
-
+        repositoryMarkers.updateMarker(markers1, id);
 
     }
 
     @Override
     public void delete(Long id) {
-       repositoryMarkers.deleteById(id);
+        repositoryMarkers.deleteById(id);
     }
 
     @Override
     public List<MarkersDTO> findAll() {
 
-
-        return repositoryMarkers.findAll().stream().map(x-> MarkersDTO.builder()
+        return repositoryMarkers.findAll().stream().map(x -> MarkersDTO.builder()
+                .id(x.getId())
                 .name(x.getName())
                 .description(x.getDescription())
                 .createdAt(x.getCreatedAt())

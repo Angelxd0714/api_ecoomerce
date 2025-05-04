@@ -1,7 +1,8 @@
 package com.ecommerce.api.persistence.entities;
 
-import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
+import jakarta.persistence.*;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,5 +22,20 @@ public class Category {
     private String name;
     @Column(name = "description")
     private String description;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 
 }

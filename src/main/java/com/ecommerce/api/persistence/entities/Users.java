@@ -6,7 +6,6 @@ import java.util.Set;
 
 import jakarta.persistence.*;
 
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.AllArgsConstructor;
@@ -55,5 +54,15 @@ public class Users {
     @Column(name = "roles")
     @ManyToMany(targetEntity = Roles.class)
     private Set<Roles> roles = new HashSet<>();
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 
 }

@@ -34,317 +34,302 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @Slf4j
 public class ProductServices implements CrudProduct {
-    @Autowired
-    private RepositoryProduct repositoryProduct;
-    @Autowired
-    private RepositoryMarkers  repositoryMarkers;
-    @Autowired
-    private RepositoryCategory  repositoryCategory;
+        @Autowired
+        private RepositoryProduct repositoryProduct;
+        @Autowired
+        private RepositoryMarkers repositoryMarkers;
+        @Autowired
+        private RepositoryCategory repositoryCategory;
 
+        @Autowired
+        private UploadImages uploadFile;
 
-    @Autowired
-    private UploadImages uploadFile;
-    @Override
-    public void save(ProductRequest product, MultipartFile file) throws IOException {
-        log.info("Saving product: {}", product.getName());
-        try {
+        @Override
+        public void save(ProductRequest product, MultipartFile file) throws IOException {
+                try {
 
-            String url = uploadFile.uploadImage(file);
+                        String url = uploadFile.uploadImage(file);
 
+                        List<Category> categories = product.getCategoriesRequestLis().stream().map(
+                                        categoryRequest -> Category.builder()
+                                                        .id(categoryRequest.getId())
+                                                        .build())
+                                        .toList();
 
+                        // Guardar marker
+                        Markers marker = Markers.builder()
+                                        .name(product.getMarker().getName())
+                                        .description(product.getMarker().getDescription())
+                                        .build();
 
+                        // Vincular al producto
+                        Product product1 = Product.builder()
+                                        .name(product.getName())
+                                        .description(product.getDescription())
+                                        .price(product.getPrice())
+                                        .stock(product.getStock())
+                                        .image(url)
+                                        .categories(categories)
+                                        .marker(marker)
+                                        .build();
 
-            List<Category> categories = product.getCategoriesRequestLis().stream()
-                    .map(categoryRequest -> Category.builder()
-                            .name(categoryRequest.getName())
-                            .description(categoryRequest.getDescription())
-                            .build())
-                    .toList();
-            List<Category> savedCategories = (List<Category>) repositoryCategory.saveAll(categories); // ¡Guárdalas!
+                        repositoryProduct.save(product1);
+                } catch (Exception e) {
+                        log.error("Error al guardar el producto", e);
+                        throw new RuntimeException(e);
 
-// Guardar marker
-            Markers marker = Markers.builder()
-                    .name(product.getMarker().getName())
-                    .description(product.getMarker().getDescription())
-                    .build();
-            Markers savedMarker = repositoryMarkers.save(marker); // ¡Guárdalo!
-
-// Vincular al producto
-            Product product1 = Product.builder()
-                    .name(product.getName())
-                    .description(product.getDescription())
-                    .price(product.getPrice())
-                    .stock(product.getStock())
-                    .image(url)
-                    .categories(savedCategories)
-                    .marker(savedMarker)
-                    .build();
-
-
-            repositoryProduct.save(product1);
-        } catch (Exception e) {
-            log.error("Error al guardar el producto", e);
-            throw new RuntimeException(e);
-
-        }
-    }
-
-
-
-    @Override
-    public ProductDTO findById(Long id) {
-
-        if (id == null) {
-            throw new RuntimeException("Producto no encontrado");
-        }
-        if (id <= 0) {
-            throw new RuntimeException("Invalido el Id");
-        }
-         if (!repositoryProduct.existsById(id)) {
-            throw new RuntimeException("Producto no encontrado");
-        }
-         if (repositoryProduct.findById(id).isEmpty()) {
-            throw new RuntimeException("Producto no encontrado");
+                }
         }
 
-        return repositoryProduct.findById(id).map(product -> ProductDTO.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .description(product.getDescription())
-                .price(product.getPrice())
-                .stock(product.getStock())
-                .image(product.getImage())
-                .categories(product.getCategories().stream().map(category ->
-                        CategoryDTO.builder()
-                                .id(category.getId())
-                                .name(category.getName())
-                                .description(category.getDescription())
-                                .build()).toList())
-                .marker(MarkersDTO.builder()
-                        .id(product.getMarker().getId())
-                        .name(product.getMarker().getName())
-                        .description(product.getMarker().getDescription())
-                        .build())
-                .createdAt(product.getCreatedAt())
-                .updatedAt(product.getUpdatedAt())
-                .build()).orElseThrow(() -> new RuntimeException("Product not found"));
-    }
-    @Override
-    @Transactional
-    public void update(ProductRequest productRequest, Long id, MultipartFile file) throws IOException {
+        @Override
+        public ProductDTO findById(Long id) {
 
-        Product existingProduct = repositoryProduct.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                if (id == null) {
+                        throw new RuntimeException("Producto no encontrado");
+                }
+                if (id <= 0) {
+                        throw new RuntimeException("Invalido el Id");
+                }
+                if (!repositoryProduct.existsById(id)) {
+                        throw new RuntimeException("Producto no encontrado");
+                }
+                if (repositoryProduct.findById(id).isEmpty()) {
+                        throw new RuntimeException("Producto no encontrado");
+                }
 
-        // 2. Actualizar campos básicos
-        existingProduct.setName(productRequest.getName());
-        existingProduct.setDescription(productRequest.getDescription());
-        existingProduct.setPrice(productRequest.getPrice());
-        existingProduct.setStock(productRequest.getStock());
-
-        // 3. Manejo de imagen (solo si hay archivo nuevo)
-        if (file != null && !file.isEmpty()) {
-            String url = uploadFile.uploadImage(file);
-            existingProduct.setImage(url);
-            Files.delete(Path.of(url));
+                return repositoryProduct.findById(id).map(product -> ProductDTO.builder()
+                                .id(product.getId())
+                                .name(product.getName())
+                                .description(product.getDescription())
+                                .price(product.getPrice())
+                                .stock(product.getStock())
+                                .image(product.getImage())
+                                .categories(product.getCategories().stream().map(category -> CategoryDTO.builder()
+                                                .id(category.getId())
+                                                .name(category.getName())
+                                                .description(category.getDescription())
+                                                .build()).toList())
+                                .marker(MarkersDTO.builder()
+                                                .id(product.getMarker().getId())
+                                                .name(product.getMarker().getName())
+                                                .description(product.getMarker().getDescription())
+                                                .build())
+                                .createdAt(product.getCreatedAt())
+                                .updatedAt(product.getUpdatedAt())
+                                .build()).orElseThrow(() -> new RuntimeException("Product not found"));
         }
 
-        // 4. Actualizar categorías (evitar duplicados)
-         List<Category> categories = productRequest.getCategoriesRequestLis().stream()
-                .map(categoryRequest -> Category.builder()
-                        .name(categoryRequest.getName())
-                        .description(categoryRequest.getDescription())
-                        .build())
-                .toList();
-        existingProduct.setCategories(categories);
+        @Override
+        @Transactional
+        public void update(ProductRequest productRequest, Long id, MultipartFile file) throws IOException {
 
-        // 5. Actualizar marker (si aplica)
-        if (productRequest.getMarker() != null) {
-            Markers existingMarker = repositoryMarkers.findByName(productRequest.getMarker().getName())
-                    .orElseGet(() -> repositoryMarkers.save(Markers.builder()
-                            .name(productRequest.getMarker().getName())
-                            .description(productRequest.getMarker().getDescription())
-                            .build()));
-            existingProduct.setMarker(existingMarker);
+                Product existingProduct = repositoryProduct.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+                // 2. Actualizar campos básicos
+                existingProduct.setName(productRequest.getName());
+                existingProduct.setDescription(productRequest.getDescription());
+                existingProduct.setPrice(productRequest.getPrice());
+                existingProduct.setStock(productRequest.getStock());
+
+                // 3. Manejo de imagen (solo si hay archivo nuevo)
+                if (file != null && !file.isEmpty()) {
+                        String url = uploadFile.uploadImage(file);
+                        existingProduct.setImage(url);
+                        Files.delete(Path.of(url));
+                }
+
+                // 4. Actualizar categorías (evitar duplicados)
+                List<Category> categories = productRequest.getCategoriesRequestLis().stream()
+                                .map(categoryRequest -> Category.builder()
+                                                .name(categoryRequest.getName())
+                                                .description(categoryRequest.getDescription())
+                                                .build())
+                                .toList();
+                existingProduct.setCategories(categories);
+
+                // 5. Actualizar marker (si aplica)
+                if (productRequest.getMarker() != null) {
+                        Markers existingMarker = repositoryMarkers.findByName(productRequest.getMarker().getName())
+                                        .orElseGet(() -> repositoryMarkers.save(Markers.builder()
+                                                        .name(productRequest.getMarker().getName())
+                                                        .description(productRequest.getMarker().getDescription())
+                                                        .build()));
+                        existingProduct.setMarker(existingMarker);
+                }
+                log.info("Product updated: {}", existingProduct.getMarker().getName());
+
+                // 6. Guardar cambios (JPA actualiza automáticamente)
+                repositoryProduct.updateProductoPersonalize(id, existingProduct);
         }
-        log.info("Product updated: {}", existingProduct.getMarker().getName());
 
-        // 6. Guardar cambios (JPA actualiza automáticamente)
-        repositoryProduct.updateProductoPersonalize(id, existingProduct);
-    }
+        @Override
+        public void delete(Long id) {
+                repositoryProduct.deleteById(id);
+        }
 
-    @Override
-    public void delete(Long id) {
-        repositoryProduct.deleteById(id);
-    }
+        @Override
+        public List<ProductDTO> findAll() {
 
-    @Override
-    public List<ProductDTO> findAll() {
+                List<Product> products = repositoryProduct.findAll();
 
-        List<Product> products = repositoryProduct.findAll();
+                return products.stream().map(product -> ProductDTO.builder()
+                                .id(product.getId())
+                                .name(product.getName())
+                                .description(product.getDescription())
+                                .price(product.getPrice())
+                                .stock(product.getStock())
+                                .image(product.getImage())
+                                .categories(product.getCategories().stream().map(category -> CategoryDTO.builder()
+                                                .id(category.getId())
+                                                .name(category.getName())
+                                                .description(category.getDescription())
+                                                .build()).toList())
+                                .marker(MarkersDTO.builder()
+                                                .id(product.getMarker().getId())
+                                                .name(product.getMarker().getName())
+                                                .description(product.getMarker().getDescription())
+                                                .build())
+                                .createdAt(product.getCreatedAt())
+                                .updatedAt(product.getUpdatedAt())
+                                .build()).toList();
+        }
 
+        @Override
+        public List<ProductDTO> findByName(String name) {
 
-        return products.stream().map(product -> ProductDTO.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .description(product.getDescription())
-                .price(product.getPrice())
-                .stock(product.getStock())
-                .image(product.getImage())
-                .categories(product.getCategories().stream().map(category ->
-                 CategoryDTO.builder()
-                                .id(category.getId())
-                                .name(category.getName())
-                                .description(category.getDescription())
-                                .build()).toList())
-                .marker(MarkersDTO.builder()
-                        .id(product.getMarker().getId())
-                        .name(product.getMarker().getName())
-                        .description(product.getMarker().getDescription())
-                        .build())
-                .createdAt(product.getCreatedAt())
-                .updatedAt(product.getUpdatedAt())
-                .build()).toList();
-    }
+                return repositoryProduct.findByName(List.of(name)).stream().map(product -> ProductDTO.builder()
+                                .id(product.getId())
+                                .name(product.getName())
+                                .description(product.getDescription())
+                                .price(product.getPrice())
+                                .stock(product.getStock())
+                                .image(product.getImage())
+                                .categories(product.getCategories().stream().map(category -> CategoryDTO.builder()
+                                                .id(category.getId())
+                                                .name(category.getName())
+                                                .description(category.getDescription())
+                                                .build()).toList())
+                                .marker(MarkersDTO.builder()
+                                                .id(product.getMarker().getId())
+                                                .name(product.getMarker().getName())
+                                                .description(product.getMarker().getDescription())
+                                                .build())
+                                .createdAt(product.getCreatedAt())
+                                .updatedAt(product.getUpdatedAt())
+                                .build()).toList();
+        }
 
-    @Override
-    public List<ProductDTO> findByName(String name) {
+        @Override
+        public List<ProductDTO> findByCategory(String category) {
+                List<Category> categories = repositoryCategory.findCategoriesByName(category);
+                return repositoryProduct.findByCategories(categories).stream().map(product -> ProductDTO.builder()
+                                .id(product.getId())
+                                .name(product.getName())
+                                .description(product.getDescription())
+                                .price(product.getPrice())
+                                .stock(product.getStock())
+                                .image(product.getImage())
+                                .categories(product.getCategories().stream().map(category1 -> CategoryDTO.builder()
+                                                .id(category1.getId())
+                                                .name(category1.getName())
+                                                .description(category1.getDescription())
+                                                .build()).toList())
+                                .marker(MarkersDTO.builder()
+                                                .id(product.getMarker().getId())
+                                                .name(product.getMarker().getName())
+                                                .description(product.getMarker().getDescription())
+                                                .build())
+                                .createdAt(product.getCreatedAt())
+                                .updatedAt(product.getUpdatedAt())
+                                .build()).toList();
+        }
 
-               return repositoryProduct.findByName(List.of(name)).stream().map(product -> ProductDTO.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .description(product.getDescription())
-                .price(product.getPrice())
-                .stock(product.getStock())
-                .image(product.getImage())
-                .categories(product.getCategories().stream().map(category ->
-                        CategoryDTO.builder()
-                                .id(category.getId())
-                                .name(category.getName())
-                                .description(category.getDescription())
-                                .build()).toList())
-                .marker(MarkersDTO.builder()
-                        .id(product.getMarker().getId())
-                        .name(product.getMarker().getName())
-                        .description(product.getMarker().getDescription())
-                        .build())
-                .createdAt(product.getCreatedAt())
-                .updatedAt(product.getUpdatedAt())
-                .build()).toList();
-    }
-    @Override
-    public List<ProductDTO> findByCategory(String category) {
-         List<Category> categories = repositoryCategory.findCategoriesByName(category);
-        return repositoryProduct.findByCategories(categories).stream().map(product -> ProductDTO.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .description(product.getDescription())
-                .price(product.getPrice())
-                .stock(product.getStock())
-                .image(product.getImage())
-                .categories(product.getCategories().stream().map(category1 ->
-                        CategoryDTO.builder()
-                                .id(category1.getId())
-                                .name(category1.getName())
-                                .description(category1.getDescription())
-                                .build()).toList())
-                .marker(MarkersDTO.builder()
-                        .id(product.getMarker().getId())
-                        .name(product.getMarker().getName())
-                        .description(product.getMarker().getDescription())
-                        .build())
-                .createdAt(product.getCreatedAt())
-                .updatedAt(product.getUpdatedAt())
-                .build()).toList();
-    }
+        @Override
+        public List<ProductDTO> findByMarker(String marker) {
+                return repositoryProduct.findByMarker(marker).stream().map(product -> ProductDTO.builder()
+                                .id(product.getId())
+                                .name(product.getName())
+                                .description(product.getDescription())
+                                .price(product.getPrice())
+                                .stock(product.getStock())
+                                .image(product.getImage())
+                                .categories(product.getCategories().stream().map(category -> CategoryDTO.builder()
+                                                .id(category.getId())
+                                                .name(category.getName())
+                                                .description(category.getDescription())
+                                                .build()).toList())
+                                .marker(MarkersDTO.builder()
+                                                .id(product.getMarker().getId())
+                                                .name(product.getMarker().getName())
+                                                .description(product.getMarker().getDescription())
+                                                .build())
+                                .createdAt(product.getCreatedAt())
+                                .updatedAt(product.getUpdatedAt())
+                                .build()).toList();
+        }
 
-    @Override
-    public List<ProductDTO> findByMarker(String marker) {
-        return repositoryProduct.findByMarker(marker).stream().map(product -> ProductDTO.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .description(product.getDescription())
-                .price(product.getPrice())
-                .stock(product.getStock())
-                .image(product.getImage())
-                .categories(product.getCategories().stream().map(category ->
-                        CategoryDTO.builder()
-                                .id(category.getId())
-                                .name(category.getName())
-                                .description(category.getDescription())
-                                .build()).toList())
-                .marker(MarkersDTO.builder()
-                        .id(product.getMarker().getId())
-                        .name(product.getMarker().getName())
-                        .description(product.getMarker().getDescription())
-                        .build())
-                .createdAt(product.getCreatedAt())
-                .updatedAt(product.getUpdatedAt())
-                .build()).toList();
-    }
+        @Override
+        public List<ProductDTO> findByPrice(BigDecimal price) {
+                return repositoryProduct.findByPrice(price).stream().map(product -> ProductDTO.builder()
+                                .id(product.getId())
+                                .name(product.getName())
+                                .description(product.getDescription())
+                                .price(product.getPrice())
+                                .stock(product.getStock())
+                                .image(product.getImage())
+                                .categories(product.getCategories().stream().map(category -> CategoryDTO.builder()
+                                                .id(category.getId())
+                                                .name(category.getName())
+                                                .description(category.getDescription())
+                                                .build()).toList())
+                                .marker(MarkersDTO.builder()
+                                                .id(product.getMarker().getId())
+                                                .name(product.getMarker().getName())
+                                                .description(product.getMarker().getDescription())
+                                                .build())
+                                .createdAt(product.getCreatedAt())
+                                .updatedAt(product.getUpdatedAt())
+                                .build()).toList();
 
-    @Override
-    public List<ProductDTO> findByPrice(BigDecimal price) {
-        return repositoryProduct.findByPrice(price).stream().map(product -> ProductDTO.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .description(product.getDescription())
-                .price(product.getPrice())
-                .stock(product.getStock())
-                .image(product.getImage())
-                .categories(product.getCategories().stream().map(category ->
-                        CategoryDTO.builder()
-                                .id(category.getId())
-                                .name(category.getName())
-                                .description(category.getDescription())
-                                .build()).toList())
-                .marker(MarkersDTO.builder()
-                        .id(product.getMarker().getId())
-                        .name(product.getMarker().getName())
-                        .description(product.getMarker().getDescription())
-                        .build())
-                .createdAt(product.getCreatedAt())
-                .updatedAt(product.getUpdatedAt())
-                .build()).toList();
+        }
 
-    }
+        @Override
+        public List<ProductDTO> findByIds(List<Long> id) {
+                return repositoryProduct.findByIds(id).stream().map(product -> ProductDTO.builder()
+                                .id(product.getId())
+                                .name(product.getName())
+                                .description(product.getDescription())
+                                .price(product.getPrice())
+                                .stock(product.getStock())
+                                .image(product.getImage())
+                                .categories(product.getCategories().stream().map(category -> CategoryDTO.builder()
+                                                .id(category.getId())
+                                                .name(category.getName())
+                                                .description(category.getDescription())
+                                                .build()).toList())
+                                .marker(MarkersDTO.builder()
+                                                .id(product.getMarker().getId())
+                                                .name(product.getMarker().getName())
+                                                .description(product.getMarker().getDescription())
+                                                .build())
+                                .createdAt(product.getCreatedAt())
+                                .updatedAt(product.getUpdatedAt())
+                                .build()).toList();
+        }
 
-    @Override
-    public List<ProductDTO> findByIds(List<Long> id) {
-        return repositoryProduct.findByIds(id).stream().map(product -> ProductDTO.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .description(product.getDescription())
-                .price(product.getPrice())
-                .stock(product.getStock())
-                .image(product.getImage())
-                .categories(product.getCategories().stream().map(category ->
-                        CategoryDTO.builder()
-                                .id(category.getId())
-                                .name(category.getName())
-                                .description(category.getDescription())
-                                .build()).toList())
-                .marker(MarkersDTO.builder()
-                        .id(product.getMarker().getId())
-                        .name(product.getMarker().getName())
-                        .description(product.getMarker().getDescription())
-                        .build())
-                .createdAt(product.getCreatedAt())
-                .updatedAt(product.getUpdatedAt())
-                .build()).toList();
-    }
+        @Transactional
+        public void updateProduct(Long orderId) {
+                Orders orders = Orders.builder()
+                                .id(orderId)
+                                .build();
+                List<Product> products = repositoryProduct.findAll().stream().filter(x -> x.getOrder().equals(orders))
+                                .toList();
+                products.forEach(x -> {
+                        x.setStock(x.getStock() - 1);
+                        repositoryProduct.updateProductoPersonalize(x.getId(), x);
+                });
 
-    @Transactional
-    public void updateProduct(Long orderId){
-        Orders orders = Orders.builder()
-                .id(orderId)
-                .build();
-        List<Product> products = repositoryProduct.findAll().stream().filter(x->x.getOrder().equals(orders)).toList();
-        products.forEach(x->{
-            x.setStock(x.getStock()-1);
-            repositoryProduct.updateProductoPersonalize(x.getId(),x);
-        });
+        }
 
-    }
-    
 }

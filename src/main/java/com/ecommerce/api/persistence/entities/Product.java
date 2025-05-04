@@ -1,7 +1,5 @@
 package com.ecommerce.api.persistence.entities;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -11,9 +9,7 @@ import java.util.*;
 
 import lombok.*;
 
-
 import java.time.*;
-
 
 @Builder
 @AllArgsConstructor
@@ -37,11 +33,14 @@ public class Product {
     @Column(name = "image")
     private String image;
 
-    @OneToMany(cascade = CascadeType.ALL) // Guarda categorías en cascada
+    @ManyToMany
+    @JoinTable(name = "product_category", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
     private List<Category> categories;
 
-    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Markers.class,cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "marker_id") // Columna de clave foránea para Markers
     private Markers marker;
+
     @Column(name = "created_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
@@ -51,4 +50,14 @@ public class Product {
     @ManyToOne
     @JoinColumn(name = "order_id")
     private Orders order;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }
