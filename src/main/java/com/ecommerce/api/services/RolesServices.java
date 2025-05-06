@@ -11,18 +11,20 @@ import com.ecommerce.api.persistence.entities.Roles;
 import com.ecommerce.api.persistence.interfaces.CrudRoles;
 import com.ecommerce.api.persistence.repository.RepositoryRoles;
 
+import jakarta.transaction.Transactional;
+
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-public class RolesServices implements CrudRoles{
+public class RolesServices implements CrudRoles {
     @Autowired
     private RepositoryRoles repositoryRoles;
 
     @Override
     public void save(RolRequest roles) {
-        Set<Permissions> permissions =  roles.getPermissions().stream().map(permission -> Permissions.builder()
+        Set<Permissions> permissions = roles.getPermissions().stream().map(permission -> Permissions.builder()
                 .name(permission.getName())
                 .build()).collect(Collectors.toSet());
         Roles roles1 = Roles.builder()
@@ -33,9 +35,10 @@ public class RolesServices implements CrudRoles{
         repositoryRoles.save(roles1);
     }
 
+    @Transactional
     @Override
     public void delete(Long id) {
-       repositoryRoles.deleteById(id);
+        repositoryRoles.deleteById(id);
     }
 
     @Override
@@ -43,38 +46,37 @@ public class RolesServices implements CrudRoles{
 
         Set<Permissions> permissions = repositoryRoles.findById(id).get().getPermissions();
 
-
         return (RolesDTO) RolesDTO.builder()
                 .name(repositoryRoles.findById(id).get().getName())
-                        .permissions(permissions.stream().map(Permissions::getName).collect(Collectors.toSet())
+                .permissions(permissions.stream().map(Permissions::getName).collect(Collectors.toSet())
                         .stream().map(permission -> PermissionDTO.builder()
                                 .name(permission)
-                                .build()).collect(Collectors.toSet())
-                                ).build();
-
-
+                                .build())
+                        .collect(Collectors.toSet()))
+                .build();
 
     }
 
     @Override
     public List<RolesDTO> findAll() {
 
-
         return repositoryRoles.findAll().stream().map(roles -> RolesDTO.builder()
                 .name(roles.getName())
                 .permissions(roles.getPermissions().stream().map(Permissions::getName).collect(Collectors.toSet())
                         .stream().map(permission -> PermissionDTO.builder()
                                 .name(permission)
-                                .build()).collect(Collectors.toSet())
-                ).build()).toList();
+                                .build())
+                        .collect(Collectors.toSet()))
+                .build()).toList();
     }
 
+    @Transactional
     @Override
     public void update(RolRequest roles, Long id) {
-        repositoryRoles.findById(id).ifPresent(r->{
+        repositoryRoles.findById(id).ifPresent(r -> {
             r.setName(roles.getName());
             repositoryRoles.save(r);
         });
     }
-    
+
 }

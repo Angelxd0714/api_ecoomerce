@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -44,23 +45,26 @@ public class ProductServices implements CrudProduct {
         @Autowired
         private UploadImages uploadFile;
 
+        @Transactional
         @Override
         public void save(ProductRequest product, MultipartFile file) throws IOException {
                 try {
 
                         String url = uploadFile.uploadImage(file);
 
-                        List<Category> categories = product.getCategoriesRequestLis().stream().map(
-                                        categoryRequest -> Category.builder()
-                                                        .id(categoryRequest.getId())
-                                                        .build())
+                        List<Long> categoriesIds = product.getCategoriesRequestLis().stream()
+                                        .map(CategoriesRequest -> CategoriesRequest.getId())
                                         .toList();
-
-                        // Guardar marker
-                        Markers marker = Markers.builder()
-                                        .name(product.getMarker().getName())
-                                        .description(product.getMarker().getDescription())
-                                        .build();
+                        Iterable<Category> categoriesId = repositoryCategory.findAllById(categoriesIds);
+                        List<Category> categories = new ArrayList<>();
+                        categoriesId.forEach(categories::add);
+                        log.info("Categories: {}", categories);
+                        Markers marker = repositoryMarkers.findById(product.getMarker().getId())
+                                        .orElseGet(() -> repositoryMarkers.save(Markers.builder()
+                                                        .name(product.getMarker().getName())
+                                                        .description(product.getMarker().getDescription())
+                                                        .build()));
+                        log.info("Marker: {}", marker.getId());
 
                         // Vincular al producto
                         Product product1 = Product.builder()

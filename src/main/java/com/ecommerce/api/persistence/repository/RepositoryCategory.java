@@ -1,6 +1,5 @@
 package com.ecommerce.api.persistence.repository;
 
-
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,7 +12,7 @@ import com.ecommerce.api.persistence.entities.Category;
 import java.util.List;
 
 @Repository
-public interface RepositoryCategory extends CrudRepository<Category,Long> {
+public interface RepositoryCategory extends CrudRepository<Category, Long> {
 
         @Modifying
         @Transactional
@@ -21,5 +20,6 @@ public interface RepositoryCategory extends CrudRepository<Category,Long> {
         void updateCategory(@Param("categoryId") Long categoryId, @Param("categoryName") String categoryName);
 
         List<Category> findAll();
+
         List<Category> findCategoriesByName(String name);
 }

@@ -17,25 +17,27 @@ public class CategoryServices implements CrudCategory {
     @Autowired
     private RepositoryCategory repositoryCategory;
 
+    @Transactional
     @Override
     public void save(CategoriesRequest category) {
-        Category categoryRequest =
-                Category.builder()
-                        .name(category.getName())
-                        .description(category.getDescription())
-                        .build();
+        Category categoryRequest = Category.builder()
+                .name(category.getName())
+                .description(category.getDescription())
+                .build();
         repositoryCategory.save(categoryRequest);
     }
 
+    @Transactional
     @Override
     public void delete(Long id) {
-       repositoryCategory.deleteById(id);
+        repositoryCategory.deleteById(id);
     }
 
     @Override
     public CategoryDTO getOne(Long id) {
 
         return CategoryDTO.builder()
+                .id(id)
                 .name(repositoryCategory.findById(id).get().getName())
                 .description(repositoryCategory.findById(id).get().getDescription())
                 .build();
@@ -54,8 +56,6 @@ public class CategoryServices implements CrudCategory {
     @Override
     @Transactional
     public void update(CategoriesRequest category, Long id) {
-        Category existingCategory = repositoryCategory.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
 
         try {
             if (category.getName() != null && !category.getName().trim().isEmpty()) {
@@ -74,9 +74,7 @@ public class CategoryServices implements CrudCategory {
                 .id(category.getId())
                 .name(category.getName())
                 .description(category.getDescription())
-                .build()).toList(
-        );
+                .build()).toList();
     }
-
 
 }

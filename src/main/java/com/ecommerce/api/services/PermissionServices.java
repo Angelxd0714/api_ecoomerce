@@ -1,4 +1,5 @@
 package com.ecommerce.api.services;
+
 import com.ecommerce.api.dto.request.PermissionsRequest;
 import com.ecommerce.api.dto.response.PermissionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,8 @@ import com.ecommerce.api.persistence.entities.Permissions;
 import com.ecommerce.api.persistence.interfaces.CrudPermission;
 import com.ecommerce.api.persistence.repository.RepositoryPermissions;
 
+import jakarta.transaction.Transactional;
+
 import java.util.List;
 
 @Service
@@ -15,6 +18,7 @@ public class PermissionServices implements CrudPermission {
     @Autowired
     private RepositoryPermissions repositoryPermissions;
 
+    @Transactional
     @Override
     public void save(PermissionsRequest permission) {
         Permissions permissions = Permissions.builder()
@@ -24,6 +28,7 @@ public class PermissionServices implements CrudPermission {
         repositoryPermissions.save(permissions);
     }
 
+    @Transactional
     @Override
     public void delete(Long id) {
         repositoryPermissions.deleteById(id);
@@ -51,13 +56,14 @@ public class PermissionServices implements CrudPermission {
         }).toList();
     }
 
+    @Transactional
     @Override
     public void update(PermissionsRequest permission, Long id) {
-         repositoryPermissions.findById(id).ifPresent(p -> {
+        repositoryPermissions.findById(id).ifPresent(p -> {
             p.setName(permission.getName());
             p.setName(permission.getName());
             repositoryPermissions.save(p);
         });
     }
-    
+
 }

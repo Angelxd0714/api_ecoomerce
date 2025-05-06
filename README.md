@@ -14,15 +14,103 @@ Este proyecto es una API RESTful desarrollada con Spring Boot para un e-commerce
 
 ## Tecnologías utilizadas
 
-*   **Spring Boot:** Framework de Java para el desarrollo de aplicaciones web y microservicios.
-*   **Spring Data JPA:** Simplifica el acceso a la base de datos utilizando el patrón Repository.
-*   **Spring Security:** Proporciona seguridad y autenticación a la API.
-*   **(Especificar otras tecnologías si se usan, ej. Lombok, MapStruct, etc.)**
-*   **(Especificar la base de datos utilizada, ej. PostgreSQL, MySQL)**
+*   **Spring Boot:** Claro, puedo ayudarte a profundizar en las tecnologías mencionadas. Aquí tienes una descripción más detallada de cada una:
 
-## Arquitectura
+- **Spring Boot:** Es un framework de Java que simplifica el desarrollo de aplicaciones web y microservicios. Proporciona una configuración predeterminada y convenciones para agilizar el desarrollo y la implementación de aplicaciones.
 
-La API sigue una arquitectura RESTful, utilizando los métodos HTTP (GET, POST, PUT, DELETE) para realizar operaciones sobre los recursos. Se utiliza el formato JSON para el intercambio de datos entre el cliente y el servidor.
+- **Spring Data JPA:** Es una capa de abstracción que simplifica el acceso a la base de datos utilizando el patrón Repository. Proporciona métodos predefinidos para realizar operaciones CRUD (Crear, Leer, Actualizar, Eliminar) sin necesidad de escribir consultas SQL manualmente.
+
+- **Spring Security:** Es un módulo de Spring que proporciona seguridad y autenticación a la API. Permite proteger las rutas de la API y controlar el acceso de los usuarios mediante autenticación y autorización.
+
+- **Lombok:** Es una biblioteca de Java que ayuda a reducir la cantidad de código repetitivo y boilerplate. Proporciona anotaciones para generar automáticamente getters, setters, constructores, métodos equals y hashCode, entre otros.
+
+- **Spring Data:** Se refiere a los módulos de Spring que facilitan la integración con diferentes bases de datos. En este caso, se mencionan MySql y Redis, que son bases de datos relacionales y de almacenamiento en caché, respectivamente.
+
+- **Spring Cloud Stream:** Es un proyecto de Spring que simplifica la integración de aplicaciones basadas en microservicios mediante el uso de sistemas de mensajería. En este caso, se menciona RabbitMQ, que es un sistema de mensajería basado en el protocolo AMQP (Advanced Message Queuing Protocol).
+
+Si tienes alguna pregunta específica sobre alguna de estas tecnologías, no dudes en preguntar.
+
+
+## 🧱 Arquitectura y Diseño
+
+### Arquitectura RESTful
+
+La API implementa el estilo de arquitectura **REST** (Representational State Transfer), lo que significa que:
+
+- Los **recursos** (como productos, categorías o pedidos) están representados por **URLs** claras y predecibles (por ejemplo, `/products`, `/orders`).
+- Se utilizan los métodos **HTTP** estándar:
+  - `GET` para obtener recursos,
+  - `POST` para crear nuevos recursos,
+  - `PUT` o `PATCH` para actualizarlos,
+  - `DELETE` para eliminarlos.
+- El formato de intercambio de datos es **JSON**, lo que facilita la comunicación entre clientes web, móviles o terceros sistemas.
+
+Esta arquitectura permite que la API sea **escalable**, **mantenible** y fácilmente **integrable** con otros servicios o frontends.
+
+---
+
+### Arquitectura por Capas
+
+La aplicación está organizada en varias capas que separan responsabilidades claramente:
+
+1. **Capa de presentación (Controller):**  
+   Expone los endpoints de la API, recibe las solicitudes HTTP y delega la lógica de negocio a la capa de servicio.
+
+2. **Capa de servicio (Service):**  
+   Contiene la lógica de negocio. Se encarga de procesar los datos, aplicar reglas y coordinar las operaciones entre repositorios y controladores.
+
+3. **Capa de acceso a datos (Repository):**  
+   Interactúa directamente con la base de datos utilizando **Spring Data JPA**. Permite realizar operaciones CRUD sin necesidad de escribir consultas SQL manuales.
+
+4. **Capa de modelo (Model o Entity):**  
+   Define las entidades del dominio, representando tablas en la base de datos.
+
+Esta separación favorece el principio de **responsabilidad única (SRP)** y facilita las pruebas unitarias y la mantenibilidad.
+
+---
+
+### Patrones de diseño utilizados
+
+La implementación también incluye algunos **patrones de diseño** comunes que mejoran la calidad del código:
+
+- **Builder Pattern:**  
+  Utilizado para construir objetos complejos (como entidades o DTOs) de forma controlada, especialmente cuando hay múltiples atributos opcionales. Es frecuente junto con **Lombok** usando `@Builder`.
+
+- **Factory Method Pattern:**  
+  Utilizado para encapsular la lógica de creación de objetos, permitiendo decidir en tiempo de ejecución qué instancia devolver. Este patrón puede verse en servicios o helpers que crean pedidos, usuarios o respuestas dependiendo del contexto.
+
+- **DTO (Data Transfer Object):**  
+  Aunque no es un patrón de diseño formal, se usan DTOs para transferir datos entre capas de manera eficiente y controlada, evitando exponer directamente las entidades del modelo.
+
+## 📐 Diagramas de Arquitectura
+
+### 1. Arquitectura por capas en Spring Boot
+![Arquitectura por capas en Spring Boot](https://imgs.search.brave.com/hMAg-x1fvnF3JQ6kV0lJby6leGhyeHjS33eYXTR7G3Q/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9yZWFj/dGl2ZXByb2dyYW1t/aW5nLmlvL19uZXh0/L2ltYWdlP3VybD0v/ZmlndXJlcy9jYXBh/cy5wbmcmdz0xOTIw/JnE9NzU)
+> Fuente: https://reactiveprogramming.io/blog/es/estilos-arquitectonicos/capasGeeks
+
+---
+
+### 2. Flujo de autenticación con Spring Security
+![Flujo de autenticación con Spring Security](https://imgs.search.brave.com/TVCFaEbA-6-2LLaay8t0PbdGeixggCdzHFM7mRZRPSY/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pMi53/cC5jb20vdGVjaG5p/Y2Fsc2FuZC5jb20v/d3AtY29udGVudC91/cGxvYWRzLzIwMjAv/MDkvU3ByaW5nLXNl/Y3VyaXR5LnBuZz9m/aXQ9MTM2Niw3Njgm/c3NsPTE)
+> Fuente: Spring.io
+
+---
+
+### 3. Arquitectura de microservicios para e-commerce
+![Microservicios para e-commerce](https://www.researchgate.net/publication/354007516/figure/fig1/AS:1059920668882944@1628754604523/E-commerce-microservices-architecture.ppm)
+> Fuente: ResearchGate
+
+---
+
+### 4. Diagrama entidad-relación (ERD) para e-commerce
+![ERD e-commerce](https://vertabelo.com/blog/img/2020/04/ER-Diagram-Online-Shop.png)
+> Fuente: Vertabelo
+
+---
+
+### 5. Comunicación con RabbitMQ
+![RabbitMQ](https://www.rabbitmq.com/img/tutorials/amqp-concepts.png)
+> Fuente: RabbitMQ.com
 
 ## Cómo ejecutar el proyecto
 
@@ -37,12 +125,19 @@ La API sigue una arquitectura RESTful, utilizando los métodos HTTP (GET, POST, 
 
 Se provee una lista de los endpoints principales de la API:
 
-*   `/products`: Gestión de productos.
-*   `/categories`: Gestión de categorías.
-*   `/users`: Gestión de usuarios.
-*   `/orders`: Gestión de pedidos.
+*   `/Products`: Gestión de productos.
+*   `/Categories`: Gestión de categorías.
+*   `/Users`: Gestión de usuarios.
+*   `/Orders`: Gestión de pedidos.
+*   `/Car`: Carrito de productos.
+*   `/Marker`: Etiqueta de productos.
+*   `/Payment`: pagos.
+*   `/Permission`:Lista Permisos.
+*   `/Rols`:Roles de usuario.
+*   `/HistorySold`: Historial de ventas.
+*   `/HistoryBought`: historial de compras.  
 
-(Añadir más endpoints si existen)
+
 
 ## Contribución
 
@@ -54,4 +149,6 @@ Las contribuciones son bienvenidas. Si deseas colaborar con el proyecto, por fav
 
 ## Contacto
 
-*   Angel David Tlaseca (enlace a tu perfil de LinkedIn, si lo deseas)
+*   Angel Santibañez.
+*   https://www.linkedin.com/in/angel-ti
+*   +57 3242167883

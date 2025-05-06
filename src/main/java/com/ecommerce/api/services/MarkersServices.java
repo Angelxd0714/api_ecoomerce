@@ -9,6 +9,8 @@ import com.ecommerce.api.persistence.entities.Markers;
 import com.ecommerce.api.persistence.interfaces.CrudMarkers;
 import com.ecommerce.api.persistence.repository.RepositoryMarkers;
 
+import jakarta.transaction.Transactional;
+
 import java.util.List;
 
 @Service
@@ -16,6 +18,7 @@ public class MarkersServices implements CrudMarkers {
     @Autowired
     private RepositoryMarkers repositoryMarkers;
 
+    @Transactional
     @Override
     public void save(MarkersRequest markers) {
 
@@ -48,20 +51,26 @@ public class MarkersServices implements CrudMarkers {
 
     }
 
+    @Transactional
     @Override
     public void update(MarkersRequest markers, Long id) {
-        Markers markers1 = Markers.builder()
-                .id(id)
-                .name(markers.getName())
-                .description(markers.getDescription())
-                .build();
-        if (id == null) {
-            throw new IllegalArgumentException("El id no puede ser nulo");
+        try {
+            Markers markers1 = Markers.builder()
+                    .id(id)
+                    .name(markers.getName())
+                    .description(markers.getDescription())
+                    .build();
+            if (id == null) {
+                throw new IllegalArgumentException("El id no puede ser nulo");
+            }
+            repositoryMarkers.updateMarker(markers1, id);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getCause());
         }
-        repositoryMarkers.updateMarker(markers1, id);
 
     }
 
+    @Transactional
     @Override
     public void delete(Long id) {
         repositoryMarkers.deleteById(id);
