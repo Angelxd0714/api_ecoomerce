@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -71,7 +72,7 @@ public class UserDetailServiceImpl implements UserDetailsService, CrudUsers {
         if (roleEntityList.isEmpty()) {
             throw new IllegalArgumentException("The roles specified does not exist.");
         }
-     
+
         Users userEntity = Users.builder().username(username).email(email).password(passwordEncoder.encode(password))
                 .roles(roleEntityList).isEnabled(true).accountNoLocked(true).accountNoExpired(true)
                 .credentialNoExpired(true).build();
@@ -90,9 +91,11 @@ public class UserDetailServiceImpl implements UserDetailsService, CrudUsers {
         Authentication authentication = new UsernamePasswordAuthenticationToken(userSaved, null, authorities);
 
         String accessToken = jwtUtils.createToken(authentication);
+        String role = userSaved.getRoles().stream()
+                .map(Roles::getName)
+                .collect(Collectors.joining(","));
 
-
-        return new Response(username, "User created successfully", accessToken, true);
+        return new Response(username, "User created successfully", accessToken, true, role);
     }
 
     public Response loginUser(RequestLogin authLoginRequest) {
@@ -104,7 +107,14 @@ public class UserDetailServiceImpl implements UserDetailsService, CrudUsers {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String accessToken = jwtUtils.createToken(authentication);
-        return new Response(username, "User loged succesfully", accessToken, true);
+        String[] role = authentication.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .filter(authority -> authority.startsWith("ROLE_"))
+                .map(authority -> authority.substring(5)) // Remove "ROLE_" prefix
+                .toArray(String[]::new);
+
+        return new Response(username, "User logged in successfully", accessToken, true, role[0]);
     }
 
     public Authentication authenticate(String username, String password) {
@@ -120,8 +130,6 @@ public class UserDetailServiceImpl implements UserDetailsService, CrudUsers {
 
         return new UsernamePasswordAuthenticationToken(username, password, userDetails.getAuthorities());
     }
-
-
 
     @Override
     public UsersDTO getUserById(Long id) {
@@ -147,10 +155,10 @@ public class UserDetailServiceImpl implements UserDetailsService, CrudUsers {
 
     @Override
     public UsersDTO getUserByEmail(String email) {
-        if(email==null){
+        if (email == null) {
             throw new IllegalArgumentException("El email no puede ser nulo");
         }
-        if(email.isEmpty()){
+        if (email.isEmpty()) {
             throw new IllegalArgumentException("El email no puede ser vacio");
         }
 
@@ -167,7 +175,6 @@ public class UserDetailServiceImpl implements UserDetailsService, CrudUsers {
                 .address(user.getAddress())
                 .credentialNoExpired(user.isCredentialNoExpired())
                 .build()).orElse(null);
-
 
     }
 
@@ -194,12 +201,18 @@ public class UserDetailServiceImpl implements UserDetailsService, CrudUsers {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + id));
 
         // Actualizar campos básicos (como antes)
-        if (user.getFullName() != null) existingUser.setFullName(user.getFullName());
-        if (user.getEmail() != null) existingUser.setEmail(user.getEmail());
-        if (user.getPassword() != null) existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
-        if (user.getPhone() != null) existingUser.setPhone(user.getPhone());
-        if (user.getAddress() != null) existingUser.setAddress(user.getAddress());
-        if(user.getUserId() != null) existingUser.setUserId(user.getUserId());
+        if (user.getFullName() != null)
+            existingUser.setFullName(user.getFullName());
+        if (user.getEmail() != null)
+            existingUser.setEmail(user.getEmail());
+        if (user.getPassword() != null)
+            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (user.getPhone() != null)
+            existingUser.setPhone(user.getPhone());
+        if (user.getAddress() != null)
+            existingUser.setAddress(user.getAddress());
+        if (user.getUserId() != null)
+            existingUser.setUserId(user.getUserId());
 
         // Actualizar roles (creándolos si no existen)
         if (user.getRoles() != null && !user.getRoles().isEmpty()) {
@@ -224,7 +237,6 @@ public class UserDetailServiceImpl implements UserDetailsService, CrudUsers {
             existingUser.setRoles(rolesSet);
         }
 
-
         repositoryUsers.save(existingUser); // Guardar el usuario actualizado
     }
 
@@ -235,9 +247,6 @@ public class UserDetailServiceImpl implements UserDetailsService, CrudUsers {
 
     @Override
     public List<UsersDTO> getAllUsers() {
-
-
-
 
         return repositoryUsers.findAll()
                 .stream()
@@ -254,20 +263,19 @@ public class UserDetailServiceImpl implements UserDetailsService, CrudUsers {
                         .accountNoLocked(user.isAccountNoLocked())
                         .address(user.getAddress())
                         .rolesDTOS(
-                                 user.getRoles().stream().map(role -> RolesDTO.builder()
-                                .id(role.getId())
-                                .name(role.getName())
-                                .permissions(
-                                        role.getPermissions().stream().map(permission -> PermissionDTO.builder()
-                                                .id(permission.getId())
-                                                .name(permission.getName())
-                                                .build()).collect(Collectors.toSet())
-                                )
-                                .build()).collect(Collectors.toSet())
-                        )
+                                user.getRoles().stream().map(role -> RolesDTO.builder()
+                                        .id(role.getId())
+                                        .name(role.getName())
+                                        .permissions(
+                                                role.getPermissions().stream().map(permission -> PermissionDTO.builder()
+                                                        .id(permission.getId())
+                                                        .name(permission.getName())
+                                                        .build()).collect(Collectors.toSet()))
+                                        .build()).collect(Collectors.toSet()))
 
                         .credentialNoExpired(user.isCredentialNoExpired())
-                        .build()).toList();
+                        .build())
+                .toList();
     }
 
 }

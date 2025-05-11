@@ -36,6 +36,7 @@ public class JWTutils {
         String jwtToken = JWT.create()
                 .withIssuer(this.userGenerator)
                 .withSubject(username)
+
                 .withClaim("authorities", authorities)
                 .withIssuedAt(new Date(0))
                 .withExpiresAt(new Date(System.currentTimeMillis() + 1800000))

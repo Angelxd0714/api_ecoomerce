@@ -27,7 +27,6 @@ public class SecurityConfig {
     @Autowired
     private JWTutils jwtUtils;
 
-
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, AuthenticationProvider authenticationProvider)
             throws Exception {
@@ -39,13 +38,13 @@ public class SecurityConfig {
                     http.requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll();
                     http.requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll();
                     http.requestMatchers(HttpMethod.GET, "/uploads/**").permitAll();
-                    http.requestMatchers(HttpMethod.GET,"api/category/**").permitAll();
+                    http.requestMatchers(HttpMethod.GET, "api/category/**").permitAll();
                     http.requestMatchers(HttpMethod.POST, "api/category/**").permitAll();
                     http.requestMatchers(HttpMethod.PUT, "api/category/**").hasAnyRole("ADMIN");
                     http.requestMatchers(HttpMethod.DELETE, "api/category/**").hasAnyRole("ADMIN");
                     http.requestMatchers(HttpMethod.GET, "api/product/**").permitAll();
                     http.requestMatchers(HttpMethod.GET, "api/roles/**").permitAll();
-                    http.requestMatchers(HttpMethod.POST,"api/product/**").permitAll();
+                    http.requestMatchers(HttpMethod.POST, "api/product/**").permitAll();
                     http.requestMatchers(HttpMethod.PUT, "api/product/**").permitAll();
                     http.requestMatchers(HttpMethod.DELETE, "api/product/**").permitAll();
                     http.requestMatchers(HttpMethod.GET, "api/user/**").permitAll();
@@ -64,10 +63,18 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.POST, "api/marker/**").permitAll();
                     http.requestMatchers(HttpMethod.PUT, "api/marker/**").hasAnyRole("ADMIN", "SELLER");
                     http.requestMatchers(HttpMethod.DELETE, "api/marker/**").hasAnyRole("ADMIN");
-                    http.requestMatchers(HttpMethod.GET,"api/payment/**").hasAnyRole("ADMIN","SELLER","CLIENT");
+                    http.requestMatchers(HttpMethod.GET, "api/payment/**").hasAnyRole("ADMIN", "SELLER", "CLIENT");
                     http.requestMatchers(HttpMethod.POST, "api/payment/**").permitAll();
                     http.requestMatchers(HttpMethod.PUT, "api/payment/**").hasAnyRole("ADMIN");
                     http.requestMatchers(HttpMethod.DELETE, "api/payment/**").hasAnyRole("ADMIN");
+                    http.requestMatchers(HttpMethod.GET, "api/permission/**").permitAll();
+                    http.requestMatchers(HttpMethod.POST, "api/permission/**").permitAll();
+                    http.requestMatchers(HttpMethod.PUT, "api/permission/**").hasAnyRole("ADMIN", "SELLER");
+                    http.requestMatchers(HttpMethod.DELETE, "api/permission/**").hasAnyRole("ADMIN");
+                    http.requestMatchers(HttpMethod.GET, "api/roles/**").permitAll();
+                    http.requestMatchers(HttpMethod.POST, "api/roles/**").permitAll();
+                    http.requestMatchers(HttpMethod.PUT, "api/roles/**").hasAnyRole("ADMIN");
+                    http.requestMatchers(HttpMethod.DELETE, "api/roles/**").hasAnyRole("ADMIN");
                     http.anyRequest().authenticated();
                 })
                 .addFilterBefore(new JwtTokenValidator(jwtUtils), BasicAuthenticationFilter.class)

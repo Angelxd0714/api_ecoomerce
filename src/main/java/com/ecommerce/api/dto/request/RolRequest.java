@@ -1,17 +1,25 @@
 package com.ecommerce.api.dto.request;
 
-import lombok.*;
-
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class RolRequest {
     private Long id;
     private String name;
-    private Set<PermissionsRequest> permissions = new HashSet<PermissionsRequest>();
+
+    @JsonProperty("permissions")
+    private Set<Long> permissions = new HashSet<>();
 }
