@@ -4,6 +4,7 @@ import com.ecommerce.api.dto.request.RolRequest;
 import com.ecommerce.api.dto.response.PermissionDTO;
 import com.ecommerce.api.dto.response.RolesDTO;
 import com.ecommerce.api.persistence.entities.Permissions;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,31 +14,44 @@ import com.ecommerce.api.persistence.repository.RepositoryPermissions;
 import com.ecommerce.api.persistence.repository.RepositoryRoles;
 
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class RolesServices implements CrudRoles {
         @Autowired
         private RepositoryRoles repositoryRoles;
         @Autowired
         private RepositoryPermissions repositoryPermissions;
 
-        @Transactional
         @Override
+        @Transactional
         public void save(RolRequest roles) {
-                Set<Permissions> permissions = repositoryPermissions.findAllById(roles.getPermissions()).stream()
-                                .collect(Collectors.toSet());
+                try {
+                        Set<Long> validIds = roles.getPermissions()
+                                        .stream()
+                                        .filter(Objects::nonNull)
+                                        .collect(Collectors.toSet());
 
-                System.out.println("permissions: " + permissions);
-                Roles roles1 = Roles.builder()
-                                .name(roles.getName())
-                                .permissions(permissions)
-                                .build();
+                        Set<Permissions> permissions = repositoryPermissions.findAllById(validIds)
+                                        .stream()
+                                        .collect(Collectors.toSet());
 
-                repositoryRoles.save(roles1);
+                        Roles roles1 = Roles.builder()
+                                        .name(roles.getName())
+                                        .permissions(permissions)
+                                        .build();
+
+                        repositoryRoles.save(roles1);
+                } catch (Exception e) {
+                        log.error("Error al guardar el rol: " + e.getMessage());
+                        throw new RuntimeException("Error al guardar el rol: " + e.getMessage());
+                }
         }
 
         @Transactional

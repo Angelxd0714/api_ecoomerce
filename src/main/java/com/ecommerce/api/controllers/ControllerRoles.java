@@ -10,12 +10,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ecommerce.api.services.RolesServices;
-
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,7 +54,8 @@ public class ControllerRoles {
     public ResponseEntity<Map<String, String>> createRole(@RequestBody RolRequest roles) {
         Map<String, String> response = new HashMap<>();
         try {
-            System.out.println("roles: " + roles.getPermissions());
+            System.out.println("permisos: " + roles.getPermissions());
+            System.out.println("name: " + roles.getName());
             rolesServices.save(roles);
             response.put("message", "Rol creado correctamente");
             return ResponseEntity.ok(response);
