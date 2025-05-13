@@ -20,14 +20,14 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "docker-compose.yml"
-          target: "/home/ubuntu"
+          target: "/home/angel/Downloads/clean-repo/compose.yml"
 
       - name: Run docker-compose on EC2
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_PUBLIC_IP }}
+          host: ${{ secrets.EC2_HOST }}
           username: ubuntu
-          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/angel/Downloads/clean-repo/compose.yml
             docker-compose pull
