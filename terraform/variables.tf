@@ -1,11 +1,13 @@
 variable "aws_region" {
-  description = "AWS region"
-  default     = "us-east-1"
+  default = "us-east-2"
 }
 
-variable "ecr_repository_name" {
-  description = "Name of the ECR repository"
-  default     = "my-local-ecr"
+variable "key_name" {
+  description = "Nombre del par de llaves SSH"
+  type        = string
 }
 
+variable "instance_type" {
+  default = "t3.micro"
+}
 
