@@ -1,16 +1,7 @@
-# Usa la imagen oficial de RabbitMQ con la interfaz de gestión (management)
-FROM rabbitmq:3-management
+FROM eclipse-temurin:21-jdk-alpine
 
-# Establece variables de entorno para credenciales predeterminadas
-ENV RABBITMQ_DEFAULT_USER=admin
-ENV RABBITMQ_DEFAULT_PASS=secret
+ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} app.jar
 
-# Expone los puertos necesarios
-EXPOSE 5672  # AMQP (para clientes)
-EXPOSE 15672 # Interfaz web de gestión
-
-# Directorio de datos persistente
-VOLUME /var/lib/rabbitmq
-
-# Comando de inicio (opcional, ya está definido en la imagen base)
-CMD ["rabbitmq-server"]
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "/app.jar"]
