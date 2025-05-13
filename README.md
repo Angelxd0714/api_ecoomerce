@@ -14,7 +14,7 @@ Este proyecto es una API RESTful desarrollada con Spring Boot para un e-commerce
 
 ## Tecnologías utilizadas
 
-*   **Spring Boot:** Claro, puedo ayudarte a profundizar en las tecnologías mencionadas. Aquí tienes una descripción más detallada de cada una:
+
 
 - **Spring Boot:** Es un framework de Java que simplifica el desarrollo de aplicaciones web y microservicios. Proporciona una configuración predeterminada y convenciones para agilizar el desarrollo y la implementación de aplicaciones.
 
@@ -28,7 +28,6 @@ Este proyecto es una API RESTful desarrollada con Spring Boot para un e-commerce
 
 - **Spring Cloud Stream:** Es un proyecto de Spring que simplifica la integración de aplicaciones basadas en microservicios mediante el uso de sistemas de mensajería. En este caso, se menciona RabbitMQ, que es un sistema de mensajería basado en el protocolo AMQP (Advanced Message Queuing Protocol).
 
-Si tienes alguna pregunta específica sobre alguna de estas tecnologías, no dudes en preguntar.
 
 
 ## 🧱 Arquitectura y Diseño
