@@ -19,7 +19,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "docker-compose.yml"
+          source: "compose.yml"
           target: "~/"
 
       - name: Run docker compose on EC2
@@ -29,4 +29,4 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            docker compose -f ~/docker-compose.yml up -d
+            docker compose -f ~/compose.yml up -d
