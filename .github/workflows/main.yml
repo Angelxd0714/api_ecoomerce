@@ -1,4 +1,4 @@
-name: Terraform Apply on LocalStack
+name: Terraform + Docker Compose Deploy
 
 on:
   push:
@@ -6,12 +6,12 @@ on:
       - main
 
 jobs:
-  terraform:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up LocalStack
         uses: LocalStack/setup-localstack@v0.2.3
@@ -24,9 +24,25 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.1.0
+          terraform_version: 1.5.7
 
-      - name: Terraform Init and Apply
+      - name: Apply Terraform on LocalStack
         run: |
-          terraform init
-          terraform apply -auto-approve
+          cd terraform
+          tflocal init
+          tflocal apply -auto-approve
+
+      - name: Upload Compose and Env to EC2
+        run: |
+          scp -o StrictHostKeyChecking=no docker-compose.yml .env ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/
+
+      - name: SSH into EC2 and Deploy Compose
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu
+            docker compose pull
+            docker compose up -d
