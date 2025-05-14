@@ -144,7 +144,7 @@ Las contribuciones son bienvenidas. Si deseas colaborar con el proyecto, por fav
 
 ## Licencia
 
-(Especificar la licencia del proyecto)
+Version 1.0
 
 ## Contacto
 
