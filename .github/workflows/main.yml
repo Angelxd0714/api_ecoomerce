@@ -29,4 +29,6 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            sudo apt update
+            sudo apt install -y docker-compose-plugin
             docker compose -f ~/compose.yml up -d
