@@ -3,7 +3,9 @@ package com.ecommerce.api.persistence.entities;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -13,6 +15,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "history_seld")
+@Getter
+@Setter
 public class HistorySold {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

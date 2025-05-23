@@ -13,10 +13,11 @@ import com.ecommerce.api.persistence.interfaces.CrudHistoryBought;
 import com.ecommerce.api.persistence.repository.RepositoryHistoryBought;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule; // Added for LocalDate
+
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct; // For initializing ObjectMapper
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,15 +37,16 @@ public class HistoryBoughtServices implements CrudHistoryBought {
     @Override
     public HistoryBoughtDTO save(HistoryBoughtRequest request) {
         HistoryBought historyBought = objectMapper.convertValue(request, HistoryBought.class);
-        
+
         historyBought.setUser(Users.builder().id(request.getUserId()).build());
         historyBought.setProduct(Product.builder().id(request.getProductId()).build());
         if (request.getPaymentMethodId() != null) {
             historyBought.setPaymentMethod(Payments.builder().id(request.getPaymentMethodId()).build());
         }
-        
+
         historyBought.setPurchaseDate(LocalDate.now());
-        // historyBought.setTotal(request.getPrice().multiply(BigDecimal.valueOf(request.getQuantity()))); // Example, ensure types match
+        // historyBought.setTotal(request.getPrice().multiply(BigDecimal.valueOf(request.getQuantity())));
+        // // Example, ensure types match
 
         HistoryBought savedEntity = repositoryHistoryBought.save(historyBought);
         return convertToDTO(savedEntity);
@@ -82,7 +84,7 @@ public class HistoryBoughtServices implements CrudHistoryBought {
 
     private HistoryBoughtDTO convertToDTO(HistoryBought entity) {
         HistoryBoughtDTO dto = objectMapper.convertValue(entity, HistoryBoughtDTO.class);
-        
+
         // Explicitly map nested DTOs
         if (entity.getUser() != null) {
             dto.setUser(objectMapper.convertValue(entity.getUser(), UsersDTO.class));

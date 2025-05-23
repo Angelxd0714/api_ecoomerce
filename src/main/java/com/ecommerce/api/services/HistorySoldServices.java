@@ -3,7 +3,7 @@ package com.ecommerce.api.services;
 import com.ecommerce.api.dto.HistorySoldRequest;
 import com.ecommerce.api.dto.HistorySoldDTO;
 import com.ecommerce.api.dto.response.ProductDTO; // Assuming ProductDTO is in this package
-import com.ecommerce.api.dto.response.UsersDTO;   // Assuming UsersDTO is in this package
+import com.ecommerce.api.dto.response.UsersDTO; // Assuming UsersDTO is in this package
 import com.ecommerce.api.persistence.entities.HistorySold;
 import com.ecommerce.api.persistence.entities.Product;
 import com.ecommerce.api.persistence.entities.Users;
@@ -14,9 +14,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule; // For LocalDate/Lo
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.PostConstruct; // Correct import for PostConstruct
-import java.time.LocalDate; // For soldDate
-import java.time.LocalDateTime; // For createdAt, updatedAt
+import jakarta.annotation.PostConstruct;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,8 +42,9 @@ public class HistorySoldServices implements CrudHistorySold {
                 .soldDate(LocalDate.now()) // Example, or pass from request if available
                 // totalSold could be calculated based on product price and quantitySold
                 .build();
-        
-        // Note: HistorySold entity has @PrePersist for createdAt, so no need to set it here.
+
+        // Note: HistorySold entity has @PrePersist for createdAt, so no need to set it
+        // here.
         // totalSold calculation would typically involve fetching product price.
         // For simplicity, it's omitted here but should be considered.
 
